@@ -1,59 +1,61 @@
-# FinancialCoach
+AI-Powered Financial Coach
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.4.
+An interactive web app built with Angular, Firebase, and OpenAI that helps users manage their personal finances, set goals, and receive AI-powered advice.  
+Designed to showcase UI/UX excellence and real-world app development skills.
 
-## Development server
+---
+Features
 
-To start a local development server, run:
+Authentication with Firebase
+  - Email/password signup & login
+  - Protected routes with Angular AuthGuard
+  - Persistent login state
 
-```bash
-ng serve
-```
+Personal Finance Dashboard
+  - Monthly income/expense summary
+  - Interactive charts (spending breakdown, income vs. expenses)
+  - Transaction list with mock/demo data
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+  Goals & Tracking
+  - Create and track financial goals
+  - Progress bars with animations
+  - Celebration animation when a goal is reached
 
-## Code scaffolding
+  AI Financial Coach
+  - Chat interface for asking money-related questions
+  - Personalized saving/spending suggestions
+  - Powered by OpenAI API (or mock data in demo mode)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+  Responsive Design
+  - Optimized for desktop, tablet, and mobile
+  - Smooth micro-interactions & animations
 
-```bash
-ng generate component component-name
-```
+  Deployment Ready
+  - Works with Vercel
+  - 
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Tech Stack
 
-```bash
-ng generate --help
-```
+- Frontend: Angular 20, TailwindCSS, Angular Animations, ngx-charts / Chart.js  
+- Backend & Auth: Firebase (Authentication)  
+- AI Integration: OpenAI API  
+- DevOps: Vercel
+---
 
-## Building
+Getting Started
 
-To build the project run:
+1. Clone the Repo
+-bash:
+  git clone https://github.com/antoniaalbu/financial-coach.git
+  cd financial-coach
 
-```bash
-ng build
-```
+2. Install Dependencies
+   npm install
+   
+3. Run Locally
+   ng serve
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Or, access the deployed version on Vercel https://financial-coach-irkobq9wi-antoniaalbus-projects.vercel.app/
 
-## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
