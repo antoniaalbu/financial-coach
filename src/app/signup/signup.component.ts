@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+
 
 @Component({
   selector: 'app-signup',
@@ -19,7 +21,8 @@ export class SignupComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.signupForm = this.fb.group({
       // Step 1: Basic Info
@@ -147,19 +150,44 @@ export class SignupComponent implements OnInit {
     return goals.includes(goal);
   }
 
-  onSubmit(): void {
-    if (this.signupForm.valid) {
-      this.isLoading = true;
-      // Simulate API call
-      setTimeout(() => {
-        this.isLoading = false;
-        console.log('Signup successful', this.signupForm.value);
-        this.router.navigate(['/dashboard']);
-      }, 2000);
-    } else {
-      this.markCurrentStepTouched();
+async onSubmit(): Promise<void> {
+  if (this.signupForm.valid) {
+    this.isLoading = true;
+
+    const formData = this.signupForm.value;
+
+    try {
+      const userCredential = await this.authService.signup(
+        formData.email, 
+        formData.password,
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          monthlyIncome: formData.monthlyIncome,
+          financialGoals: formData.financialGoals
+        }
+      );
+
+      console.log('Signup successful:', userCredential.user);
+      this.router.navigate(['/dashboard']);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      // You can create a better error display system
+      this.showError(error.message);
+    } finally {
+      this.isLoading = false;
     }
+  } else {
+    this.markCurrentStepTouched();
   }
+}
+
+// Add error handling method
+showError(message: string): void {
+  // You can implement a toast service or modal here
+  alert(message); // Replace with better UI later
+}
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
