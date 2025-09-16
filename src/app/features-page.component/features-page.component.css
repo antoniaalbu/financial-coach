@@ -5,7 +5,7 @@
   min-height: 100vh;
 }
 
-/* Hero Section */
+
 .hero-section {
   position: relative;
   min-height: 100vh;
@@ -16,18 +16,33 @@
 }
 
 .hero-background {
-  position: absolute;
+ position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background: radial-gradient(circle at 20% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 40% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-              #000;
+  background-image: url('../../../assets/features-page.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 0;
+
+
+  opacity: 0;                
+  animation: fadeIn 5s ease forwards; 
 }
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 
 .floating-orbs {
   position: absolute;
@@ -55,7 +70,7 @@
   height: 250px;
   bottom: -125px;
   left: -125px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(4, 120, 140, 0.1) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(106, 84, 200, 0.2) 0%, rgba(36, 18, 202, 0.1) 50%, transparent 70%);
   animation-delay: 2s;
 }
 
@@ -73,7 +88,7 @@
   height: 180px;
   top: 60%;
   left: 10%;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(5, 122, 85, 0.1) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(161, 70, 194, 0.2) 0%, rgba(5, 122, 85, 0.1) 50%, transparent 70%);
   animation-delay: 6s;
 }
 
@@ -711,10 +726,9 @@
   flex-shrink: 0;
 }
 
-/* Testimonials Section */
 .testimonials-section {
-  padding: 8rem 2rem;
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+  padding: 12rem 2rem;
+  background: linear-gradient(135deg, rgba(78, 70, 229, 0.87) 0%, rgba(71, 68, 95, 0.77) 100%);
 }
 
 .testimonials-grid {
@@ -805,12 +819,15 @@
   line-height: 1;
 }
 
-/* CTA Section */
+
 .cta-section {
-  padding: 8rem 2rem;
+  padding: 12rem 2rem;
   text-align: center;
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
-  position: relative;
+  background: black;
+  background-image: url('../../../assets/bg.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .cta-section::before {
@@ -820,7 +837,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  
 }
 
 .cta-content {
@@ -850,7 +867,7 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Glass effect utility */
+
 .glass-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px) saturate(180%);
