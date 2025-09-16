@@ -5,15 +5,13 @@
   right: 0;
   z-index: 1000;
   padding: 1rem 0;
-  background: black;
-  backdrop-filter: blur(20px);
-  
+  background-color:rgba(0, 0, 0, 0);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.scrolled {
   padding: 0.5rem 0;
-  background: rgba(0, 0, 0, 1);
+  backdrop-filter: blur(20px);
 }
 
 .nav-container {
@@ -40,7 +38,7 @@
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #4F46E5, #06B6D4);
+  background: linear-gradient(135deg, #ffffffff, #ffffffff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -14,9 +14,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(ellipse at top left, rgba(9, 35, 106, 0.89) 0%, transparent 50%),
-              radial-gradient(ellipse at bottom right, rgba(36, 49, 145, 0.15) 0%, transparent 50%),
-              radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, transparent 50%);
+  overflow: hidden;
+  background-image: url('../../../assets/bg.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
 }
 
 .floating-elements {

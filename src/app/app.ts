@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
   styles: [`
     .app-container {
       min-height: 100vh;
-      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+      background: linear-gradient(135deg, #0a0a0f 0%, #4b4b9eff 50%, #5f5d90 100%);
       color: white;
       overflow-x: hidden;
     }

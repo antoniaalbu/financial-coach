@@ -14,8 +14,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(ellipse at top, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
-              radial-gradient(ellipse at bottom, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+  overflow: hidden;
+  background-image: url('../../../assets/bg.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
 }
 
 .floating-shapes {
@@ -340,7 +344,6 @@
 }
 
 .divider span {
-
   backdrop-filter: blur(20px);
   color: rgba(255, 255, 255, 0.7);
   padding: 0 1rem;
