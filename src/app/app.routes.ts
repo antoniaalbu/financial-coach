@@ -3,6 +3,7 @@ import { LandingComponent } from './landing-page/landing-page.component';
 import { SignupComponent } from './signup/signup.component';
 import { LoginComponent } from './login/login.component';
 import { FeaturesComponent } from './features-page.component/features-page.component';
+import { AboutComponent } from './about-page/about-page.component';
 
 
 export const routes: Routes = [
@@ -10,5 +11,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'features', component: FeaturesComponent },
+  { path: 'about', component: AboutComponent },
   { path: '**', redirectTo: '' }  
 ];
