@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface Feature {
   id: string;
@@ -146,7 +147,7 @@ export class FeaturesComponent implements OnInit, AfterViewInit {
     {
       name: 'Sarah Chen',
       role: 'Marketing Director',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b287?w=150&h=150&fit=crop&crop=face',
+      avatar: 'https://plus.unsplash.com/premium_photo-1693000697180-4e285198d71c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0',
       quote: 'The AI insights helped me save $2,400 in my first year. I finally understand where my money goes!',
       rating: 5
     },
@@ -173,7 +174,7 @@ export class FeaturesComponent implements OnInit, AfterViewInit {
     { number: '4.9★', label: 'User Rating' }
   ];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.setupScrollListener();
@@ -215,7 +216,7 @@ export class FeaturesComponent implements OnInit, AfterViewInit {
   }
 
   navigateToSignup(): void {
-    console.log('Navigate to signup');
+    this.router.navigate(['/signup']);
   }
 
   scrollToSection(sectionId: string): void {
