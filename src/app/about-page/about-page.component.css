@@ -22,7 +22,7 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background-image: url('../../../assets/about.jpg'); 
+  background-image: url('../../../assets/about-bg.jpeg'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -870,7 +870,7 @@
   padding: 12rem 2rem;
   text-align: center;
   background: black;
-  background-image: url('../../../assets/cta-section.jpg'); 
+  background-image: url('../../../assets/about-cta.png'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
