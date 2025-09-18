@@ -50,17 +50,15 @@ interface BudgetCategory {
 })
 export class DashboardComponent implements OnInit {
   
-  // User data
-  userName = 'John Doe';
-  userAvatar = '../../../assets/user-avatar.jpg';
-  
-  // Financial overview
+ 
+  userName = 'Me';
+  userAvatar = 'https://media.licdn.com/dms/image/v2/D4E03AQH1fDAyoxvo0g/profile-displayphoto-shrink_800_800/B4EZTDgIK5GwAc-/0/1738446767854?e=1761177600&v=beta&t=ZKKwpuhrmNf-kMI8toLIdJm6EgLG6f2kNqphEe2n-xk';
+
   totalBalance = 45750.80;
   monthlyIncome = 8500.00;
   monthlyExpenses = 3250.75;
   monthlyChange = 15.4;
   
-  // Recent transactions
   recentTransactions: Transaction[] = [
     {
       id: '1',
@@ -109,7 +107,7 @@ export class DashboardComponent implements OnInit {
     }
   ];
   
-  // Financial goals
+
   goals: Goal[] = [
     {
       id: '1',
@@ -140,7 +138,7 @@ export class DashboardComponent implements OnInit {
     }
   ];
   
-  // Investment portfolio
+ 
   investments: Investment[] = [
     {
       id: '1',
@@ -174,7 +172,7 @@ export class DashboardComponent implements OnInit {
     }
   ];
   
-  // Budget categories
+ 
   budgetCategories: BudgetCategory[] = [
     {
       id: '1',
@@ -213,10 +211,10 @@ export class DashboardComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // Initialize dashboard data or fetch from service
+    
   }
 
-  // Utility methods
+
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -239,7 +237,7 @@ export class DashboardComponent implements OnInit {
     return Math.min((spent / budget) * 100, 100);
   }
 
-  // Navigation methods
+
   navigateToTransactions(): void {
     this.router.navigate(['/transactions']);
   }
@@ -261,17 +259,14 @@ export class DashboardComponent implements OnInit {
   }
 
   addTransaction(): void {
-    // Open add transaction modal or navigate to form
     console.log('Add transaction clicked');
   }
 
   addGoal(): void {
-    // Open add goal modal or navigate to form
     console.log('Add goal clicked');
   }
 
   logout(): void {
-    // Implement logout logic
     this.router.navigate(['/login']);
   }
 }
