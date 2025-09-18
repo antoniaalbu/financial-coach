@@ -5,6 +5,7 @@ import { LoginComponent } from './login/login.component';
 import { FeaturesComponent } from './features-page.component/features-page.component';
 import { AboutComponent } from './about-page/about-page.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { AuthGuard } from '@angular/fire/auth-guard';
 
 
 export const routes: Routes = [
@@ -13,6 +14,6 @@ export const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'features', component: FeaturesComponent },
   { path: 'about', component: AboutComponent },
-  { path: 'dashboard', component: DashboardComponent },
+   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }  
 ];
