@@ -14,10 +14,15 @@ import { CommonModule } from '@angular/common';
       <app-navbar *ngIf="showNavbar()"></app-navbar>
 
       <!-- Show Sidebar if on dashboard -->
-      <app-sidebar *ngIf="showSidebar()"></app-sidebar>
+      <app-sidebar 
+        *ngIf="showSidebar()" 
+        (sidebarStateChange)="onSidebarStateChange($event)">
+      </app-sidebar>
 
       <!-- Main content -->
-      <div class="content" [class.with-sidebar]="showSidebar()">
+      <div class="content" 
+           [class.with-sidebar]="showSidebar()"
+           [class.sidebar-collapsed]="sidebarState.isCollapsed">
         <router-outlet></router-outlet>
       </div>
     </div>
@@ -33,15 +38,31 @@ import { CommonModule } from '@angular/common';
 
     .content {
       flex: 1;
-      transition: margin-left 0.3s ease;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .content.with-sidebar {
       margin-left: 250px; /* same as sidebar width */
     }
+
+    .content.with-sidebar.sidebar-collapsed {
+      margin-left: 80px; /* collapsed sidebar width */
+    }
+
+    @media (max-width: 768px) {
+      .content.with-sidebar {
+        margin-left: 0;
+      }
+      
+      .content.with-sidebar.sidebar-collapsed {
+        margin-left: 0;
+      }
+    }
   `]
 })
 export class AppComponent {
+  sidebarState = { isCollapsed: false, isMobile: false };
+
   constructor(private router: Router) {}
 
   showNavbar(): boolean {
@@ -53,5 +74,9 @@ export class AppComponent {
 
   showSidebar(): boolean {
     return this.router.url.includes('/dashboard');
+  }
+
+  onSidebarStateChange(state: {isCollapsed: boolean, isMobile: boolean}) {
+    this.sidebarState = state;
   }
 }
