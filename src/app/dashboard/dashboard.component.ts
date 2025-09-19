@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { Firestore, collection, query, where, getDocs } from '@angular/fire/firestore';
 
 interface Transaction {
   id: string;
@@ -208,10 +210,38 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-  constructor(private router: Router) {}
+   constructor(
+    private router: Router,
+    private authService: AuthService,
+    private firestore: Firestore,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  ngOnInit(): void {
-    
+  
+  async ngOnInit(): Promise<void> {
+    const currentUser = this.authService.currentUser;
+
+    if (currentUser?.email) {
+      const usersRef = collection(this.firestore, 'users');
+      const q = query(usersRef, where('email', '==', currentUser.email));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const data: any = querySnapshot.docs[0].data();
+        const firstName = data.firstName || '';
+        const lastName = data.lastName || '';
+        this.userName = `${firstName} ${lastName}`.trim() || 'User';
+
+        if (data.avatarUrl) {
+          this.userAvatar = data.avatarUrl;
+        }
+      } else {
+        this.userName = 'User';
+      }
+
+      // Force Angular to detect changes since this is async
+      this.cdr.markForCheck();
+    }
   }
 
 
