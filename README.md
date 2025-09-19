@@ -55,6 +55,6 @@ Getting Started
 3. Run Locally
    ng serve
 
-Or, access the deployed version on Vercel https://financial-coach-irkobq9wi-antoniaalbus-projects.vercel.app/
+Or, access the deployed version on Vercel https://financial-coach-pe6dcmn2l-antoniaalbus-projects.vercel.app/
 
 
