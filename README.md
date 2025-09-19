@@ -32,7 +32,6 @@ Personal Finance Dashboard
 
   Deployment Ready
   - Works with Vercel
-  - 
 ---
 
 Tech Stack
