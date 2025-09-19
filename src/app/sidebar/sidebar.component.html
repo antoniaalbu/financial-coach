@@ -1,5 +1,7 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed">
-  <!-- Logo -->
+<aside class="sidebar" [class.collapsed]="isCollapsed" 
+       (mouseenter)="expandSidebar()" 
+       (mouseleave)="collapseSidebar()">
+
   <div class="sidebar-logo" (click)="navigateTo('dashboard')">
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
       <path d="M16 0L20.944 11.056L32 16L20.944 20.944L16 32L11.056 20.944L0 16L11.056 11.056L16 0Z"
@@ -14,7 +16,6 @@
     <span class="logo-text" *ngIf="!isCollapsed">FinanceCoach</span>
   </div>
 
-  <!-- Links -->
   <nav class="sidebar-links">
     <a class="sidebar-link" (click)="navigateTo('dashboard')">
       <span *ngIf="!isCollapsed">Dashboard</span>
@@ -27,16 +28,10 @@
     </a>
   </nav>
 
-  <!-- Actions -->
   <div class="sidebar-actions">
     <button class="btn-secondary" (click)="logout()">
       <span class="icon">➜]</span>
       <span *ngIf="!isCollapsed">Logout</span>
     </button>
-    <button class="collapse-btn" (click)="toggleSidebar()">
-      <span *ngIf="isCollapsed">⮞</span>
-      <span *ngIf="!isCollapsed">⬅</span>
-    </button>
   </div>
 </aside>
-
