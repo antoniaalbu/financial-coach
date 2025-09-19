@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { AuthService } from '../../services/auth.service'; 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -16,7 +16,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService 
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -27,16 +28,24 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      setTimeout(() => {
-        this.isLoading = false;
-        console.log('Login successful');
-        this.router.navigate(['/dashboard']);
-      }, 2000);
-    } else {
+  async onSubmit(): Promise<void> {
+    if (!this.loginForm.valid) {
       this.markFormGroupTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    const { email, password } = this.loginForm.value;
+
+    try {
+      const userCredential = await this.authService.login(email, password);
+      console.log('Login successful:', userCredential.user);
+      this.router.navigate(['/dashboard']);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      this.showError(error.message);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -66,5 +75,9 @@ export class LoginComponent implements OnInit {
       if (field.errors['minlength']) return `${fieldName} must be at least ${field.errors['minlength'].requiredLength} characters`;
     }
     return '';
+  }
+
+  showError(message: string): void {
+    alert(message); 
   }
 }

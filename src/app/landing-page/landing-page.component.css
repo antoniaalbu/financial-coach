@@ -301,7 +301,7 @@
   padding: 12rem 2rem;
   text-align: center;
   background: black;
-  background-image: url('../../../assets/cta-section.jpg'); /* Update the filename as needed */
+  background-image: url('../../../assets/cta-section.jpg'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -380,8 +380,8 @@
     font-size: 0.75rem;
     padding: 0.375rem 0.75rem;
   }
-};
 }
+
 
 .highlight-text {
   background: linear-gradient(135deg, #06B6D4, #8B5CF6);

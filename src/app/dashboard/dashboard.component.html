@@ -1,0 +1,263 @@
+<div class="dashboard-page">
+
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="dashboard-title">
+          Welcome back, <span class="gradient-text">{{ userName.split(' ')[0] }}</span>
+        </h1>
+        <p class="dashboard-subtitle">Here's what's happening with your finances today</p>
+      </div>
+      
+      <div class="header-right">
+        <div class="header-actions">
+          <button class="action-btn" (click)="addTransaction()">
+            <svg width="20" height="20" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add Transaction
+          </button>
+          <button class="action-btn secondary" (click)="navigateToSettings()">
+            <svg width="25" height="25" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+          <div class="user-profile" (click)="navigateToSettings()">
+            <img [src]="userAvatar" [alt]="userName" class="user-avatar">
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <main class="dashboard-main">
+    <div class="container">
+      
+      <section class="overview-section">
+        <div class="overview-grid">
+          
+          <div class="overview-card glass-card balance-card">
+            <div class="card-header">
+              <div class="card-icon balance-icon">
+                <svg width="24" height="24" fill="none" stroke="white">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <h3>Total Balance</h3>
+            </div>
+            <div class="card-content">
+              <div class="balance-amount">{{ formatCurrency(totalBalance) }}</div>
+              <div class="balance-change positive">
+                <svg width="16" height="16" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+                +{{ monthlyChange }}% this month
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-card glass-card income-card">
+            <div class="card-header">
+              <div class="card-icon income-icon">
+                <svg width="24" height="24" fill="none" stroke="white">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+              </div>
+              <h3>Monthly Income</h3>
+            </div>
+            <div class="card-content">
+              <div class="amount">{{ formatCurrency(monthlyIncome) }}</div>
+              <div class="amount-label">September 2024</div>
+            </div>
+          </div>
+
+          <div class="overview-card glass-card expense-card">
+            <div class="card-header">
+              <div class="card-icon expense-icon">
+                <svg width="24" height="24" fill="none" stroke="white">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                </svg>
+              </div>
+              <h3>Monthly Expenses</h3>
+            </div>
+            <div class="card-content">
+              <div class="amount">{{ formatCurrency(monthlyExpenses) }}</div>
+              <div class="amount-label">September 2024</div>
+            </div>
+          </div>
+
+          <div class="overview-card glass-card savings-card">
+            <div class="card-header">
+              <div class="card-icon savings-icon">
+                <svg width="24" height="24" fill="none" stroke="white">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <h3>Savings Rate</h3>
+            </div>
+            <div class="card-content">
+              <div class="amount">{{ ((monthlyIncome - monthlyExpenses) / monthlyIncome * 100).toFixed(1) }}%</div>
+              <div class="amount-label">{{ formatCurrency(monthlyIncome - monthlyExpenses) }} saved</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="dashboard-content">
+        <div class="content-grid">
+          
+          <div class="content-left">
+          
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2 class="section-title">Recent Transactions</h2>
+                <button class="view-all-btn" (click)="navigateToTransactions()">
+                  View All
+                  <svg width="25" height="25" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="transactions-list glass-card">
+                <div class="transaction-item" *ngFor="let transaction of recentTransactions">
+                  <div class="transaction-icon" [class]="transaction.type + '-icon'">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" [innerHTML]="transaction.icon"></svg>
+                  </div>
+                  
+                  <div class="transaction-details">
+                    <div class="transaction-description">{{ transaction.description }}</div>
+                    <div class="transaction-category">{{ transaction.category }}</div>
+                  </div>
+                  
+                  <div class="transaction-amount" [class]="transaction.type">
+                    {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                  </div>
+                  
+                  <div class="transaction-date">{{ formatDate(transaction.date) }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2 class="section-title">Budget Overview</h2>
+                <button class="view-all-btn" (click)="navigateToBudget()">
+                  Manage
+                  <svg width="25" height="25" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="budget-list glass-card">
+                <div class="budget-item" *ngFor="let category of budgetCategories">
+                  <div class="budget-info">
+                    <div class="budget-icon" [style.background-color]="category.color">
+                      <svg width="20" height="20" fill="none" stroke="white" [innerHTML]="category.icon"></svg>
+                    </div>
+                    <div class="budget-details">
+                      <div class="budget-name">{{ category.name }}</div>
+                      <div class="budget-amounts">
+                        {{ formatCurrency(category.spent) }} of {{ formatCurrency(category.budget) }}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="budget-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" 
+                           [style.width.%]="getBudgetPercentage(category.spent, category.budget)"
+                           [style.background-color]="category.color"></div>
+                    </div>
+                    <div class="budget-percentage">{{ getBudgetPercentage(category.spent, category.budget).toFixed(0) }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-right">
+            
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2 class="section-title">Financial Goals</h2>
+                <button class="add-btn" (click)="addGoal()">
+                  <svg width="25" height="25" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  Add Goal
+                </button>
+              </div>
+              
+              <div class="goals-list">
+                <div class="goal-card glass-card" *ngFor="let goal of goals">
+                  <div class="goal-header">
+                    <div class="goal-icon" [style.background-color]="goal.color">
+                      <svg width="20" height="20" fill="none" stroke="white" [innerHTML]="goal.icon"></svg>
+                    </div>
+                    <div class="goal-info">
+                      <h3 class="goal-title">{{ goal.title }}</h3>
+                      <div class="goal-target">{{ formatCurrency(goal.target) }} goal</div>
+                    </div>
+                  </div>
+                  
+                  <div class="goal-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" 
+                           [style.width.%]="getProgressPercentage(goal.current, goal.target)"
+                           [style.background-color]="goal.color"></div>
+                    </div>
+                    <div class="progress-info">
+                      <span class="progress-amount">{{ formatCurrency(goal.current) }}</span>
+                      <span class="progress-percentage">{{ getProgressPercentage(goal.current, goal.target).toFixed(0) }}%</span>
+                    </div>
+                  </div>
+                  
+                  <div class="goal-deadline">
+                    Deadline: {{ formatDate(goal.deadline) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-section">
+              <div class="section-header">
+                <h2 class="section-title">Investment Portfolio</h2>
+                <button class="view-all-btn" (click)="navigateToInvestments()">
+                  View All
+                  <svg width="25" height="25" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="investments-list glass-card">
+                <div class="investment-item" *ngFor="let investment of investments">
+                  <div class="investment-info">
+                    <div class="investment-name">{{ investment.name }}</div>
+                    <div class="investment-symbol">{{ investment.symbol }}</div>
+                  </div>
+                  
+                  <div class="investment-values">
+                    <div class="investment-value">{{ formatCurrency(investment.currentValue) }}</div>
+                    <div class="investment-change" [class]="investment.change >= 0 ? 'positive' : 'negative'">
+                      <svg width="14" height="14" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              [attr.d]="investment.change >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6'"/>
+                      </svg>
+                      {{ investment.changePercent >= 0 ? '+' : '' }}{{ investment.changePercent }}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

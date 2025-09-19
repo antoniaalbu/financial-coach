@@ -173,7 +173,7 @@ async onSubmit(): Promise<void> {
       this.router.navigate(['/dashboard']);
     } catch (error: any) {
       console.error('Signup error:', error);
-      // You can create a better error display system
+    
       this.showError(error.message);
     } finally {
       this.isLoading = false;
@@ -183,10 +183,9 @@ async onSubmit(): Promise<void> {
   }
 }
 
-// Add error handling method
 showError(message: string): void {
-  // You can implement a toast service or modal here
-  alert(message); // Replace with better UI later
+
+  alert(message); 
 }
 
   togglePasswordVisibility(): void {

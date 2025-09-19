@@ -1,0 +1,37 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed" 
+       (mouseenter)="expandSidebar()" 
+       (mouseleave)="collapseSidebar()">
+
+  <div class="sidebar-logo" (click)="navigateTo('dashboard')">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <path d="M16 0L20.944 11.056L32 16L20.944 20.944L16 32L11.056 20.944L0 16L11.056 11.056L16 0Z"
+            fill="url(#gradient)" />
+      <defs>
+        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+          <stop offset="0%" stop-color="#4F46E5"/>
+          <stop offset="100%" stop-color="#06B6D4"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="logo-text" *ngIf="!isCollapsed">FinanceCoach</span>
+  </div>
+
+  <nav class="sidebar-links">
+    <a class="sidebar-link" (click)="navigateTo('dashboard')">
+      <span *ngIf="!isCollapsed">Dashboard</span>
+    </a>
+    <a class="sidebar-link" (click)="navigateTo('features')">
+      <span *ngIf="!isCollapsed">Features</span>
+    </a>
+    <a class="sidebar-link" (click)="navigateTo('about')">
+      <span *ngIf="!isCollapsed">About</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-actions">
+    <button class="btn-secondary" (click)="logout()">
+      <span class="icon">➜]</span>
+      <span *ngIf="!isCollapsed">Logout</span>
+    </button>
+  </div>
+</aside>
