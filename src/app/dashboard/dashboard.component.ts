@@ -3,6 +3,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Firestore, collection, query, where, getDocs } from '@angular/fire/firestore';
+import { inject } from '@angular/core';
 
 interface Transaction {
   id: string;
@@ -218,31 +219,35 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   
-  async ngOnInit(): Promise<void> {
-    const currentUser = this.authService.currentUser;
+ async ngOnInit(): Promise<void> {
+  const currentUser = this.authService.currentUser;
 
-    if (currentUser?.email) {
-      const usersRef = collection(this.firestore, 'users');
-      const q = query(usersRef, where('email', '==', currentUser.email));
-      const querySnapshot = await getDocs(q);
+  if (currentUser?.email) {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where('email', '==', currentUser.email));
+    const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-        const data: any = querySnapshot.docs[0].data();
-        const firstName = data.firstName || '';
-        const lastName = data.lastName || '';
-        this.userName = `${firstName} ${lastName}`.trim() || 'User';
+    if (!querySnapshot.empty) {
+      const data: any = querySnapshot.docs[0].data();
+      const firstName = data.firstName || '';
+      const lastName = data.lastName || '';
+      this.userName = `${firstName} ${lastName}`.trim() || 'User';
 
-        if (data.avatarUrl) {
-          this.userAvatar = data.avatarUrl;
-        }
-      } else {
-        this.userName = 'User';
+      console.log("Logged in user:", this.userName); 
+
+      if (data.avatarUrl) {
+        this.userAvatar = data.avatarUrl;
       }
-
-      // Force Angular to detect changes since this is async
-      this.cdr.markForCheck();
+    } else {
+      this.userName = 'User';
+      console.log("No user found in Firestore, defaulting to:", this.userName);
     }
+
+
+    this.cdr.markForCheck();
   }
+}
+
 
 
   formatCurrency(amount: number): string {
