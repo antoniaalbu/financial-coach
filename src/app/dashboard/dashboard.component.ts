@@ -53,9 +53,12 @@ interface BudgetCategory {
 })
 export class DashboardComponent implements OnInit {
   
- 
-  userName = 'Me';
+  // Initialize as empty string instead of 'Me'
+  userName = '';
   userAvatar = 'https://media.licdn.com/dms/image/v2/D4E03AQH1fDAyoxvo0g/profile-displayphoto-shrink_800_800/B4EZTDgIK5GwAc-/0/1738446767854?e=1761177600&v=beta&t=ZKKwpuhrmNf-kMI8toLIdJm6EgLG6f2kNqphEe2n-xk';
+  
+  // Add loading state to handle async data loading
+  isLoading = true;
 
   totalBalance = 45750.80;
   monthlyIncome = 8500.00;
@@ -211,44 +214,69 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-   constructor(
+  constructor(
     private router: Router,
     private authService: AuthService,
     private firestore: Firestore,
     private cdr: ChangeDetectorRef
   ) {}
 
-  
- async ngOnInit(): Promise<void> {
-  const currentUser = this.authService.currentUser;
+  async ngOnInit(): Promise<void> {
+    try {
+      const currentUser = this.authService.currentUser;
 
-  if (currentUser?.email) {
-    const usersRef = collection(this.firestore, 'users');
-    const q = query(usersRef, where('email', '==', currentUser.email));
-    const querySnapshot = await getDocs(q);
+      if (currentUser?.email) {
+        const usersRef = collection(this.firestore, 'users');
+        const q = query(usersRef, where('email', '==', currentUser.email));
+        const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      const data: any = querySnapshot.docs[0].data();
-      const firstName = data.firstName || '';
-      const lastName = data.lastName || '';
-      this.userName = `${firstName} ${lastName}`.trim() || 'User';
+        if (!querySnapshot.empty) {
+          const userData: any = querySnapshot.docs[0].data();
+          const firstName = userData.firstName || '';
+          const lastName = userData.lastName || '';
+          
+          // Set userName with proper fallback
+          this.userName = `${firstName} ${lastName}`.trim();
+          
+          // If both firstName and lastName are empty, use email or default
+          if (!this.userName) {
+            this.userName = currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+          }
 
-      console.log("Logged in user:", this.userName); 
+          console.log("Logged in user:", this.userName);
 
-      if (data.avatarUrl) {
-        this.userAvatar = data.avatarUrl;
+          // Update avatar if available
+          if (userData.avatarUrl) {
+            this.userAvatar = userData.avatarUrl;
+          }
+        } else {
+          // Fallback if no user document found
+          this.userName = currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+          console.log("No user found in Firestore, using fallback:", this.userName);
+        }
+      } else {
+        // No authenticated user
+        this.userName = 'Guest';
+        console.log("No authenticated user, defaulting to Guest");
       }
-    } else {
-      this.userName = 'User';
-      console.log("No user found in Firestore, defaulting to:", this.userName);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      // Fallback in case of error
+      const currentUser = this.authService.currentUser;
+      this.userName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'User';
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges(); // Trigger change detection
     }
-
-
-    this.cdr.markForCheck();
   }
-}
 
-
+  // Helper method to get display name
+  getDisplayName(): string {
+    if (this.isLoading) {
+      return 'Loading...';
+    }
+    return this.userName || 'User';
+  }
 
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
@@ -271,7 +299,6 @@ export class DashboardComponent implements OnInit {
   getBudgetPercentage(spent: number, budget: number): number {
     return Math.min((spent / budget) * 100, 100);
   }
-
 
   navigateToTransactions(): void {
     this.router.navigate(['/transactions']);
