@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { FinancialDataService } from '../../services/financial-data.service';
 
 
 @Component({
@@ -22,7 +24,9 @@ export class SignupComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private firestore: Firestore,
+    private financialDataService: FinancialDataService
   ) {
     this.signupForm = this.fb.group({
       // Step 1: Basic Info
@@ -151,37 +155,69 @@ export class SignupComponent implements OnInit {
   }
 
 async onSubmit(): Promise<void> {
-  if (this.signupForm.valid) {
-    this.isLoading = true;
-
-    const formData = this.signupForm.value;
-
-    try {
-      const userCredential = await this.authService.signup(
-        formData.email, 
-        formData.password,
-        {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          monthlyIncome: formData.monthlyIncome,
-          financialGoals: formData.financialGoals
-        }
-      );
-
-      console.log('Signup successful:', userCredential.user);
-      this.router.navigate(['/dashboard']);
-    } catch (error: any) {
-      console.error('Signup error:', error);
-    
-      this.showError(error.message);
-    } finally {
-      this.isLoading = false;
-    }
-  } else {
+  if (!this.signupForm.valid) {
     this.markCurrentStepTouched();
+    return;
+  }
+
+  this.isLoading = true;
+  const formData = this.signupForm.value;
+
+  try {
+    // 1. Signup with Auth
+    const userCredential = await this.authService.signup(
+      formData.email,
+      formData.password,
+      {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        monthlyIncome: formData.monthlyIncome,
+        financialGoals: formData.financialGoals
+      }
+    );
+
+    const user = userCredential.user;
+    if (!user) throw new Error('User signup failed');
+
+    // 2. Create Firestore user document
+    const userDocRef = doc(this.firestore, `users/${user.uid}`);
+    await setDoc(userDocRef, {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      monthlyIncome: formData.monthlyIncome,
+      financialGoals: formData.financialGoals,
+      avatarUrl: user.photoURL || null,
+      createdAt: new Date()
+    });
+
+    // 3. Setup initial default budgets
+  const defaultBudgets = [
+  { category: 'Food & Dining', monthlyLimit: 800, color: '#4F46E5' },
+  { category: 'Transportation', monthlyLimit: 400, color: '#06B6D4' },
+  { category: 'Entertainment', monthlyLimit: 300, color: '#8B5CF6' },
+  { category: 'Shopping', monthlyLimit: 600, color: '#F59E0B' }
+];
+
+try {
+  await this.financialDataService.createMonthlyBudgets(defaultBudgets, userCredential.user.uid);
+} catch (error) {
+  console.error('Budget creation error:', error);
+  // optionally show a non-blocking warning
+}
+// 4. Navigate to dashboard
+this.router.navigate(['/dashboard']);
+console.log('Signup successful:', userCredential.user);
+
+  } catch (error: any) {
+    console.error('Signup error:', error);
+    this.showError(error.message);
+  } finally {
+    this.isLoading = false;
   }
 }
+
 
 showError(message: string): void {
 
