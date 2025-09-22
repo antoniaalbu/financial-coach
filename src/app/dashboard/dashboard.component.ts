@@ -96,7 +96,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     console.log('Budgets fetched from Firestore:', budgets);
 
-    // Update dashboard data
+    
     this.dashboardData.budgets = budgets;
     this.cdr.detectChanges();
   } catch (error) {
@@ -116,7 +116,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       console.log('Loading profile for user:', currentUser.uid);
 
-      // Try to get user document by UID first (recommended approach)
+      
       const userDocRef = doc(this.firestore, 'users', currentUser.uid);
       const userSnap = await getDoc(userDocRef);
 
@@ -136,7 +136,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.userAvatar = userData['avatarUrl'];
         }
       } else {
-        // Fallback: try to find user by email
+        
         console.log('User document not found by UID, trying email lookup');
         
         if (currentUser.email) {
@@ -177,7 +177,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private setupDataSubscriptions(): void {
-    // Check if user is authenticated before setting up subscriptions
+   
     const currentUser = this.authService.currentUser;
     if (!currentUser) {
       console.log('No authenticated user, skipping data subscriptions');
@@ -187,7 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     console.log('Setting up data subscriptions for user:', currentUser.uid);
 
-    // Combine all financial data streams
+    
     const dashboardData$ = combineLatest([
       this.financialDataService.getTotalBalance(),
       this.financialDataService.getMonthlyIncome(),
@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.financialDataService.getMonthlyTrends()
     ]).pipe(
       map(([balance, income, expenses, transactions, goals, budgets, expensesByCategory, monthlyTrends]) => {
-        // Calculate monthly change percentage
+        
         const previousMonthExpenses = this.getPreviousMonthExpenses(transactions);
         const monthlyChange = previousMonthExpenses > 0 
           ? ((expenses - previousMonthExpenses) / previousMonthExpenses) * 100
@@ -210,8 +210,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           monthlyIncome: income,
           monthlyExpenses: expenses,
           monthlyChange,
-          transactions: transactions.slice(0, 5), // Latest 5 transactions
-          goals: goals.filter(g => !g.isCompleted).slice(0, 3), // Top 3 active goals
+          transactions: transactions.slice(0, 5), 
+          goals: goals.filter(g => !g.isCompleted).slice(0, 3), 
           budgets,
           expensesByCategory,
           monthlyTrends
@@ -226,7 +226,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.cdr.detectChanges();
         
-        // Update charts after data is loaded
+       
         setTimeout(() => {
           this.createPieChart();
           this.createLineChart();
@@ -441,20 +441,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.userName || 'User';
   }
 
-  // Helper method to get current month label
+  
   getCurrentMonthLabel(): string {
     const now = new Date();
     return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }
 
-  // Helper method to calculate savings rate
+  
   getSavingsRate(): string {
     if (this.dashboardData.monthlyIncome === 0) return '0.0';
     const rate = ((this.dashboardData.monthlyIncome - this.dashboardData.monthlyExpenses) / this.dashboardData.monthlyIncome * 100);
     return rate.toFixed(1);
   }
 
-  // Helper method to get budget icon based on category
+  
   getBudgetIcon(category: string): string {
     const iconMap: {[key: string]: string} = {
       'Food & Dining': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6.28"/>',
@@ -473,7 +473,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return iconMap[category] || iconMap['Other'];
   }
 
-  // Helper method to get goal icon based on category
+  
   getGoalIcon(category: string): string {
     const iconMap: {[key: string]: string} = {
       'emergency': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
@@ -487,7 +487,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return iconMap[category] || iconMap['other'];
   }
 
-  // Navigation methods
+  
   navigateToTransactions(): void {
     this.router.navigate(['/transactions']);
   }
@@ -501,14 +501,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   navigateToBudget(): void {
-    this.router.navigate(['/budget']);
+    this.router.navigate(['/budgets']);
   }
 
   navigateToSettings(): void {
     this.router.navigate(['/settings']);
   }
 
-  // Quick action methods
+ 
   addTransaction(): void {
     this.router.navigate(['/transactions/add']);
   }

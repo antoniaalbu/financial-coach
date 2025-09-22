@@ -1,0 +1,283 @@
+<!-- budget.component.html -->
+<div class="budget-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="back-btn" (click)="navigateToDashboard()">
+          <svg width="20" height="20" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back to Dashboard
+        </button>
+        <div class="header-titles">
+          <h1 class="page-title">Budget Management</h1>
+          <p class="page-subtitle">
+            Manage your monthly spending limits for {{ getCurrentMonthYear() }}
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn primary" (click)="openAddModal()">
+          <svg width="20" height="20" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Add Budget Category
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your budgets...</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="budget-main" *ngIf="!isLoading">
+    <div class="container">
+      <!-- Budget Overview -->
+      <section class="budget-overview" *ngIf="budgets.length > 0">
+        <div class="section-header">
+          <h2>Budget Overview</h2>
+          <div class="budget-summary">
+            <div class="summary-item">
+              <span class="summary-label">Total Budgeted:</span>
+              <span class="summary-value">{{ formatCurrency(getTotalBudgeted()) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Total Spent:</span>
+              <span class="summary-value">{{ formatCurrency(getTotalSpent()) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="budget-grid">
+          <div *ngFor="let budget of budgets" class="budget-card glass-card"
+               [class]="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold)">
+            
+            <!-- Budget Header -->
+            <div class="budget-header">
+              <div class="budget-info">
+                <div class="budget-icon" [style.background-color]="budget.color">
+                  <svg width="25" height="25" fill="none" stroke="white">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                </div>
+                <div class="budget-details">
+                  <h3 class="budget-category">{{ budget.category }}</h3>
+                  <p class="budget-limit">{{ formatCurrency(budget.monthlyLimit) }} monthly limit</p>
+                </div>
+              </div>
+              <div class="budget-actions">
+                <button class="action-btn-small" (click)="openEditModal(budget)" title="Edit Budget">
+                  <svg width="25" height="25" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 
+                          112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </button>
+                <div class="action-dropdown">
+                  <button class="action-btn-small dropdown-toggle">
+                    <svg width="25" height="25" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 
+                            2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                    </svg>
+                  </button>
+                  <div class="dropdown-menu">
+                    <button class="dropdown-item" (click)="resetBudgetSpending(budget)">
+                      Reset Spending
+                    </button>
+                    <button class="dropdown-item danger" (click)="deleteBudget(budget)">
+                      Delete Budget
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="budget-progress-section">
+              <div class="spending-amounts">
+                <div class="spent-amount">
+                  <span class="amount-label">Spent</span>
+                  <span class="amount-value">{{ formatCurrency(budget.spent) }}</span>
+                </div>
+                <div class="remaining-amount">
+                  <span class="amount-label">Remaining</span>
+                  <span class="amount-value"
+                        [class]="budget.spent > budget.monthlyLimit ? 'over-budget' : ''">
+                    {{ formatCurrency(budget.monthlyLimit - budget.spent) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-container">
+                <div class="progress-bar">
+                  <div class="progress-fill"
+                       [style.width.%]="getBudgetPercentage(budget.spent, budget.monthlyLimit)"
+                       [style.background-color]="
+                         getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold) === 'over'
+                           ? '#EF4444'
+                           : getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold) === 'warning'
+                           ? '#F59E0B'
+                           : budget.color">
+                  </div>
+                  <div class="alert-threshold-marker"
+                       [style.left.%]="budget.alertThreshold"
+                       title="Alert threshold at {{ budget.alertThreshold }}%">
+                  </div>
+                </div>
+                <div class="progress-labels">
+                  <span class="progress-percentage">
+                    {{ getBudgetPercentage(budget.spent, budget.monthlyLimit).toFixed(1) }}%
+                  </span>
+                  <span class="alert-threshold-label">Alert: {{ budget.alertThreshold }}%</span>
+                </div>
+              </div>
+
+              <!-- Status Badge -->
+              <div class="budget-status-badge"
+                   [class]="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold)">
+                <span *ngIf="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold) === 'good'">
+                  On Track
+                </span>
+                <span *ngIf="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold) === 'warning'">
+                  Near Limit
+                </span>
+                <span *ngIf="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold) === 'over'">
+                  Over Budget
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Empty State -->
+      <div *ngIf="budgets.length === 0" class="empty-state">
+        <div class="empty-state-content">
+          <div class="empty-state-icon">
+            <svg width="64" height="64" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 
+                       002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 
+                       0 012 2v10m-6 0a2 2 0 002 2h2a2 2 
+                       0 002-2m0 0V5a2 2 0 012-2h2a2 2 
+                       0 012 2v14a2 2 0 01-2 2h-2a2 2 
+                       0 01-2-2z"/>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">No Budgets Set</h3>
+          <p class="empty-state-description">
+            Create budget categories to track your monthly spending and stay on top of your finances.
+          </p>
+          <button class="btn primary large" (click)="openAddModal()">
+            <svg width="20" height="20" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Create Your First Budget
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions-section" *ngIf="budgets.length > 0">
+        <div class="quick-actions-card glass-card">
+          <h3 class="quick-actions-title">Quick Actions</h3>
+          <div class="quick-actions-grid">
+            <button class="quick-action-btn" (click)="navigateToTransactions()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v10a2 2 
+                           0 002 2h8a2 2 0 002-2V7a2 2 
+                           0 00-2-2h-2M9 5a2 2 0 002 
+                           2h2a2 2 0 002-2M9 5a2 2 0 
+                           012-2h2a2 2 0 012 2"/>
+                </svg>
+              </div>
+              <span>View Transactions</span>
+            </button>
+            <button class="quick-action-btn" (click)="openAddModal()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </div>
+              <span>Add Category</span>
+            </button>
+            <button class="quick-action-btn" (click)="navigateToDashboard()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 
+                           0 002-2V9a2 2 0 00-2-2H5a2 
+                           2 0 00-2-2V7"/>
+                </svg>
+              </div>
+              <span>Dashboard</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- 🔹 Modal for Add/Edit Budget -->
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
+<div class="modal" *ngIf="isModalOpen">
+  <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+    <div class="form-header">
+      <h3>{{ editingBudget ? 'Edit Budget Category' : 'Add New Budget Category' }}</h3>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    <form [formGroup]="budgetForm" (ngSubmit)="saveBudget()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="category">Category *</label>
+          <input formControlName="category" id="category" type="text"
+                 [readonly]="editingBudget"/>
+        </div>
+        <div class="form-group">
+          <label for="monthlyLimit">Monthly Limit *</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input type="number" step="0.01" formControlName="monthlyLimit" id="monthlyLimit"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="alertThreshold">Alert Threshold (%)</label>
+          <input type="number" min="1" max="100" formControlName="alertThreshold" id="alertThreshold"/>
+        </div>
+        <div class="form-group" *ngIf="editingBudget">
+            <label for="spent">Spent Amount</label>
+            <div class="input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" step="0.01" formControlName="spent" id="spent"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+          <label for="color">Color Theme</label>
+          <input type="color" formControlName="color" id="color"/>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn primary">
+          {{ editingBudget ? 'Update Budget' : 'Add Budget' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

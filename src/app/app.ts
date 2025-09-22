@@ -10,16 +10,13 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, RouterOutlet, NavbarComponent, SidebarComponent],
   template: `
     <div class="app-container">
-      <!-- Show Navbar if not login/signup/dashboard -->
       <app-navbar *ngIf="showNavbar()"></app-navbar>
 
-      <!-- Show Sidebar if on dashboard -->
       <app-sidebar 
         *ngIf="showSidebar()" 
         (sidebarStateChange)="onSidebarStateChange($event)">
       </app-sidebar>
 
-      <!-- Main content -->
       <div class="content" 
            [class.with-sidebar]="showSidebar()"
            [class.sidebar-collapsed]="sidebarState.isCollapsed">
@@ -42,11 +39,11 @@ import { CommonModule } from '@angular/common';
     }
 
     .content.with-sidebar {
-      margin-left: 250px; /* same as sidebar width */
+      margin-left: 250px; 
     }
 
     .content.with-sidebar.sidebar-collapsed {
-      margin-left: 80px; /* collapsed sidebar width */
+      margin-left: 80px; 
     }
 
     @media (max-width: 768px) {
@@ -69,11 +66,12 @@ export class AppComponent {
     const url = this.router.url;
     return !url.includes('/login') &&
            !url.includes('/signup') &&
-           !url.includes('/dashboard');
+           !url.includes('/dashboard') &&
+           !url.includes('/budgets');
   }
 
   showSidebar(): boolean {
-    return this.router.url.includes('/dashboard');
+    return this.router.url.includes('/dashboard') || this.router.url.includes('/budgets');
   }
 
   onSidebarStateChange(state: {isCollapsed: boolean, isMobile: boolean}) {
