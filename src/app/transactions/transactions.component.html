@@ -1,0 +1,81 @@
+<div class="transactions-page">
+  <header>
+    <h1>Transactions</h1>
+    <button (click)="openAddModal()">Add Transaction</button>
+  </header>
+
+  <div *ngIf="isLoading">Loading transactions...</div>
+
+  <table *ngIf="!isLoading && transactions.length > 0">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tx of transactions">
+        <td>{{ tx.type }}</td>
+        <td>{{ tx.category }}</td>
+        <td>{{ tx.description }}</td>
+        <td [class.income]="tx.type==='income'" [class.expense]="tx.type==='expense'">
+          {{ formatCurrency(tx.amount) }}
+        </td>
+        <td>{{ formatDate(tx.date) }}</td>
+        <td>
+          <button (click)="openEditModal(tx)">Edit</button>
+          <button (click)="deleteTransaction(tx)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && transactions.length === 0">
+    No transactions yet.
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" *ngIf="isModalOpen">
+    <div class="modal-content">
+      <h2>{{ editingTransaction ? 'Edit' : 'Add' }} Transaction</h2>
+      <form [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
+        <label>
+          Type:
+          <select formControlName="type">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </label>
+
+        <label>
+          Category:
+          <select formControlName="category">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </label>
+
+        <label>
+          Description:
+          <input formControlName="description" type="text" />
+        </label>
+
+        <label>
+          Amount:
+          <input formControlName="amount" type="number" step="0.01" />
+        </label>
+
+        <label>
+          Date:
+          <input formControlName="date" type="date" />
+        </label>
+
+        <button type="submit">{{ editingTransaction ? 'Save Changes' : 'Add Transaction' }}</button>
+        <button type="button" (click)="closeModal()">Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>
