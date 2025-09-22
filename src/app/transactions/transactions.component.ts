@@ -83,7 +83,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         category: data.category,
         description: data.description,
         amount: data.amount,
-        // convert Firestore Timestamp or string into JS Date
+        
         date: data.date?.toDate ? data.date.toDate() : new Date(data.date)
       } as TransactionItem;
     });
@@ -130,35 +130,44 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     this.transactionForm.reset();
   }
 
-  async saveTransaction(): Promise<void> {
-    if (!this.transactionForm.valid) return;
-    const currentUser = this.authService.currentUser;
-    if (!currentUser) return;
+async saveTransaction(): Promise<void> {
+  if (!this.transactionForm.valid) return;
+  const currentUser = this.authService.currentUser;
+  if (!currentUser) return;
 
-    const formValue = this.transactionForm.value;
-    const userDocRef = doc(this.firestore, 'users', currentUser.uid);
-    const transactionsRef = collection(userDocRef, 'transactions');
+  const formValue = this.transactionForm.value;
+  const userDocRef = doc(this.firestore, 'users', currentUser.uid);
+  const transactionsRef = collection(userDocRef, 'transactions');
 
-    try {
-      if (this.editingTransaction) {
-        const transactionDocRef = doc(transactionsRef, this.editingTransaction.id);
-        await updateDoc(transactionDocRef, {
-          ...formValue,
-          date: formValue.date instanceof Date ? formValue.date : new Date(formValue.date)
-        });
-      } else {
-        await addDoc(transactionsRef, {
-          ...formValue,
-          date: formValue.date instanceof Date ? formValue.date : new Date(formValue.date)
-        });
+  try {
+    if (this.editingTransaction) {
+      const transactionDocRef = doc(transactionsRef, this.editingTransaction.id);
+      await updateDoc(transactionDocRef, {
+        ...formValue,
+        date: formValue.date instanceof Date ? formValue.date : new Date(formValue.date)
+      });
+    } else {
+      await addDoc(transactionsRef, {
+        ...formValue,
+        date: formValue.date instanceof Date ? formValue.date : new Date(formValue.date)
+      });
+
+      // ✅ Update the related budget if it's an expense
+      if (formValue.type === 'expense') {
+        await this.financialDataService.updateBudgetSpending(
+          formValue.category,
+          formValue.amount
+        );
       }
-      this.closeModal();
-      await this.loadTransactions();
-    } catch (error) {
-      console.error('Error saving transaction:', error);
-      alert('Error saving transaction. Please try again.');
     }
+
+    this.closeModal();
+    await this.loadTransactions();
+  } catch (error) {
+    console.error('Error saving transaction:', error);
+    alert('Error saving transaction. Please try again.');
   }
+}
 
   async deleteTransaction(transaction: TransactionItem): Promise<void> {
     if (!confirm(`Delete this ${transaction.type} transaction?`)) return;
