@@ -1,6 +1,6 @@
-<!-- budget.component.html -->
+
 <div class="budget-page">
-  <!-- Header -->
+
   <header class="page-header">
     <div class="header-content">
       <div class="header-left">
@@ -28,7 +28,6 @@
     </div>
   </header>
 
-  <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <div class="loading-spinner">
       <div class="spinner"></div>
@@ -36,10 +35,10 @@
     </div>
   </div>
 
-  <!-- Main Content -->
+
   <main class="budget-main" *ngIf="!isLoading">
     <div class="container">
-      <!-- Budget Overview -->
+
       <section class="budget-overview" *ngIf="budgets.length > 0">
         <div class="section-header">
           <h2>Budget Overview</h2>
@@ -58,8 +57,7 @@
         <div class="budget-grid">
           <div *ngFor="let budget of budgets" class="budget-card glass-card"
                [class]="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold)">
-            
-            <!-- Budget Header -->
+       
             <div class="budget-header">
               <div class="budget-info">
                 <div class="budget-icon" [style.background-color]="budget.color">
@@ -101,7 +99,6 @@
               </div>
             </div>
 
-            <!-- Progress Section -->
             <div class="budget-progress-section">
               <div class="spending-amounts">
                 <div class="spent-amount">
@@ -117,7 +114,7 @@
                 </div>
               </div>
 
-              <!-- Progress Bar -->
+           
               <div class="progress-container">
                 <div class="progress-bar">
                   <div class="progress-fill"
@@ -142,7 +139,6 @@
                 </div>
               </div>
 
-              <!-- Status Badge -->
               <div class="budget-status-badge"
                    [class]="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold)">
                 <span *ngIf="getBudgetStatus(budget.spent, budget.monthlyLimit, budget.alertThreshold) === 'good'">
@@ -160,7 +156,7 @@
         </div>
       </section>
 
-      <!-- Empty State -->
+     
       <div *ngIf="budgets.length === 0" class="empty-state">
         <div class="empty-state-content">
           <div class="empty-state-icon">
@@ -188,7 +184,6 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
       <section class="quick-actions-section" *ngIf="budgets.length > 0">
         <div class="quick-actions-card glass-card">
           <h3 class="quick-actions-title">Quick Actions</h3>
@@ -233,7 +228,6 @@
   </main>
 </div>
 
-<!-- 🔹 Modal for Add/Edit Budget -->
 <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
 <div class="modal" *ngIf="isModalOpen">
   <div class="modal-content glass-card" (click)="$event.stopPropagation()">

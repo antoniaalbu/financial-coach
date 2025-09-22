@@ -1,4 +1,25 @@
-/* Glass Card Base */
+.budget-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: url('../../../assets/dashboard5-bg.jpg') center center / cover no-repeat;
+  color: white;
+}
+
+.budget-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6); 
+  z-index: 0;
+}
+
+.budget-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+
 .glass-card {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
@@ -9,7 +30,6 @@
   color: white;
 }
 
-/* --- Form Styles --- */
 .budget-form-section {
   margin-bottom: 2rem;
 }
@@ -144,7 +164,6 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* --- Budget Overview --- */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -181,7 +200,7 @@
   font-size: 1.2rem;
 }
 
-/* Budget Cards */
+
 .budget-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -250,7 +269,6 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* Dropdown */
 .action-dropdown {
   position: relative;
 }
@@ -297,7 +315,6 @@
   color: #f87171;
 }
 
-/* Progress */
 .spending-amounts {
   display: flex;
   justify-content: space-between;
@@ -352,7 +369,6 @@
   opacity: 0.9;
 }
 
-/* Status Badge */
 .budget-status-badge {
   margin-top: 0.5rem;
   padding: 0.4rem 0.75rem;
@@ -377,7 +393,6 @@
   color: #ef4444;
 }
 
-/* --- Empty State --- */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -404,7 +419,7 @@
   font-size: 1rem;
 }
 
-/* --- Quick Actions --- */
+
 .quick-actions-section {
   margin-top: 3rem;
 }
@@ -455,7 +470,7 @@
   border-radius: 8px;
 }
 
-/* 🌙 Modal Base */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
