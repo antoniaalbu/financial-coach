@@ -2,22 +2,20 @@
 <div class="budget-page">
 
  
+ <header class="budgets-header">
   <div class="header-content">
-    <!-- Left section: Back button + titles -->
+   
     <div class="header-left">
       <div class="header-titles">
-        <h1 class="page-title">
-          <span class="gradient-text">Budget Management</span>
-        </h1>
-        <p class="page-subtitle">
+        <h1 class="budgets-title gradient-text">Budget Management</h1>
+        <p class="budgets-subtitle">
           Manage your monthly spending limits for {{ getCurrentMonthYear() }}
         </p>
       </div>
     </div>
 
-    <!-- Right section: Add Budget button -->
     <div class="header-actions">
-      <button class="action-btn primary" (click)="openAddModal()">
+      <button class="action-btn" (click)="openAddModal()">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
@@ -25,6 +23,8 @@
       </button>
     </div>
   </div>
+</header>
+
 
 
 
