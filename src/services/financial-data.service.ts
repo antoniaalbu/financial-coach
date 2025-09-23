@@ -238,6 +238,7 @@ async updateBudgetSpending(category: string, amount: number): Promise<void> {
       const budgetData = budgetDoc.data();
       console.log('Current budget data:', budgetData);
 
+<<<<<<< HEAD
       await updateDoc(budgetDoc.ref, { spent: increment(amount) });
       console.log(`Updated budget '${category}' spent by ${amount}`);
     } else {
@@ -247,6 +248,8 @@ async updateBudgetSpending(category: string, amount: number): Promise<void> {
     console.error('Error updating budget spending:', error);
   }
 }
+=======
+>>>>>>> budgets
  
   getMonthlyIncome(): Observable<number> {
     return this.transactions$.pipe(

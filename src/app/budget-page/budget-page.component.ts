@@ -98,6 +98,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
     }
   }
 
+
   openAddModal(): void {
     this.editingBudget = null;
     this.isModalOpen = true;
@@ -202,7 +203,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  
   getAvailableCategories(): typeof this.availableCategories {
     const usedCategories = this.budgets.map(b => b.category);
     return this.availableCategories.filter(cat => !usedCategories.includes(cat.name));

@@ -1,32 +1,32 @@
 
 <div class="budget-page">
 
-  <header class="page-header">
-    <div class="header-content">
-      <div class="header-left">
-        <button class="back-btn" (click)="navigateToDashboard()">
-          <svg width="20" height="20" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-          Back to Dashboard
-        </button>
-        <div class="header-titles">
-          <h1 class="page-title">Budget Management</h1>
-          <p class="page-subtitle">
-            Manage your monthly spending limits for {{ getCurrentMonthYear() }}
-          </p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button class="action-btn primary" (click)="openAddModal()">
-          <svg width="20" height="20" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-          </svg>
-          Add Budget Category
-        </button>
+ 
+ <header class="budgets-header">
+  <div class="header-content">
+   
+    <div class="header-left">
+      <div class="header-titles">
+        <h1 class="budgets-title gradient-text">Budget Management</h1>
+        <p class="budgets-subtitle">
+          Manage your monthly spending limits for {{ getCurrentMonthYear() }}
+        </p>
       </div>
     </div>
-  </header>
+
+    <div class="header-actions">
+      <button class="action-btn" (click)="openAddModal()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Add Budget Category
+      </button>
+    </div>
+  </div>
+</header>
+
+
+
 
   <div *ngIf="isLoading" class="loading-container">
     <div class="loading-spinner">
@@ -36,7 +36,7 @@
   </div>
 
 
-  <main class="budget-main" *ngIf="!isLoading">
+  <main class="budgets-main" *ngIf="!isLoading">
     <div class="container">
 
       <section class="budget-overview" *ngIf="budgets.length > 0">
