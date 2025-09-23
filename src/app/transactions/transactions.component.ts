@@ -31,12 +31,22 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
   transactionForm: FormGroup;
   private subscription: Subscription | null = null;
+  filterForm: FormGroup;
+
 
   readonly categories = [
     'Food & Dining', 'Transportation', 'Entertainment', 'Shopping',
     'Bills & Utilities', 'Healthcare', 'Education', 'Travel',
     'Housing', 'Insurance', 'Other'
   ];
+  filters = {
+  type: 'all',           
+  category: 'all',       
+  startDate: null as Date | null,
+  endDate: null as Date | null
+};
+
+filteredTransactions: TransactionItem[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -52,14 +62,24 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       amount: [0, [Validators.required, Validators.min(0.01)]],
       date: [new Date(), Validators.required]
     });
+     this.filterForm = this.fb.group({
+    type: ['all'],
+    category: ['all'],
+    startDate: [null],
+    endDate: [null]
+  });
   }
 
   ngOnInit(): void {
     this.loadTransactions();
+    this.filterForm.valueChanges.subscribe(() => {
+    this.onFilterChange();
+  });
     this.subscription = this.financialDataService.transactions$.subscribe(transactions => {
       this.transactions = transactions;
       this.isLoading = false;
     });
+    this.onFilterChange();
   }
 
   ngOnDestroy(): void {
@@ -83,17 +103,20 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         category: data.category,
         description: data.description,
         amount: data.amount,
-        
         date: data.date?.toDate ? data.date.toDate() : new Date(data.date)
       } as TransactionItem;
     });
 
     this.isLoading = false;
+
+    
+    this.onFilterChange();
   } catch (error) {
     console.error('Error loading transactions:', error);
     this.isLoading = false;
   }
 }
+
 
 
   openAddModal(): void {
@@ -121,6 +144,42 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     date: transaction.date ? transaction.date.toISOString().substring(0, 10) : ''
   });
 }
+
+trackByTransaction(index: number, transaction: TransactionItem): string {
+  return transaction.id;
+}
+
+ onFilterChange(): void {
+  const { type, category, startDate, endDate } = this.filterForm.value;
+  console.log('Filter form values:', this.filterForm.value);
+
+  this.filteredTransactions = this.transactions.filter(tx => {
+
+    if (type !== 'all' && tx.type !== type) {
+      return false;
+    }
+
+    
+    if (category !== 'all' && tx.category !== category) {
+      return false;
+    }
+
+
+    const txDate = new Date(tx.date);
+    if (startDate && txDate < new Date(startDate)) {
+      return false;
+    }
+    if (endDate && txDate > new Date(endDate)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  console.log('Filtered transactions:', this.filteredTransactions);
+}
+
+
 
 
 
@@ -152,7 +211,7 @@ async saveTransaction(): Promise<void> {
         date: formValue.date instanceof Date ? formValue.date : new Date(formValue.date)
       });
 
-      // ✅ Update the related budget if it's an expense
+      
       if (formValue.type === 'expense') {
         await this.financialDataService.updateBudgetSpending(
           formValue.category,
