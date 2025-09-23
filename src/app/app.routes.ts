@@ -6,6 +6,7 @@ import { FeaturesComponent } from './features-page.component/features-page.compo
 import { AboutComponent } from './about-page/about-page.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from '@angular/fire/auth-guard';
+import { BudgetComponent } from './budget-page/budget-page.component';
 
 
 
@@ -16,5 +17,6 @@ export const routes: Routes = [
   { path: 'features', component: FeaturesComponent },
   { path: 'about', component: AboutComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'budgets', component: BudgetComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }  
 ];

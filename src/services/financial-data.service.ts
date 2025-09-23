@@ -40,90 +40,88 @@ export class FinancialDataService {
     this.initializeRealtimeListeners();
   }
 
-  private initializeRealtimeListeners() {
-    const currentUser = this.authService.currentUser;
-    if (!currentUser) return;
+ private initializeRealtimeListeners() {
+  const currentUser = this.authService.currentUser;
+  if (!currentUser) return;
 
-    // Transactions listener
-    const transactionsRef = collection(this.firestore, 'transactions');
-    const transactionsQuery = query(
-      transactionsRef,
-      where('userId', '==', currentUser.uid),
-      orderBy('date', 'desc'),
-      limit(100)
-    );
+  // 🔹 Transactions (nested under user)
+  const userDocRef = doc(this.firestore, 'users', currentUser.uid);
+  const transactionsRef = collection(userDocRef, 'transactions');
+  const transactionsQuery = query(
+    transactionsRef,
+    orderBy('date', 'desc'),
+    limit(100)
+  );
 
-    onSnapshot(transactionsQuery, (snapshot) => {
-      const transactions: Transaction[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        transactions.push({
-          id: doc.id,
-          ...data,
-          date: data['date']?.toDate(),
-          createdAt: data['createdAt']?.toDate()
-        } as Transaction);
-      });
-      this.transactionsSubject.next(transactions);
+  onSnapshot(transactionsQuery, (snapshot) => {
+    const transactions: Transaction[] = [];
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      transactions.push({
+        id: docSnap.id,
+        ...data,
+        date: data['date']?.toDate?.() || null,
+        createdAt: data['createdAt']?.toDate?.() || null
+      } as Transaction);
     });
+    this.transactionsSubject.next(transactions);
+  });
 
-    // Goals listener
-    const goalsRef = collection(this.firestore, 'goals');
-    const goalsQuery = query(
-      goalsRef,
-      where('userId', '==', currentUser.uid),
-      orderBy('createdAt', 'desc')
-    );
+  // 🔹 Goals (still top-level in your code — do you also want them under users/{uid}?)
+  const goalsRef = collection(this.firestore, 'goals');
+  const goalsQuery = query(
+    goalsRef,
+    where('userId', '==', currentUser.uid),
+    orderBy('createdAt', 'desc')
+  );
 
-    onSnapshot(goalsQuery, (snapshot) => {
-      const goals: Goal[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        goals.push({
-          id: doc.id,
-          ...data,
-          deadline: data['deadline']?.toDate(),
-          createdAt: data['createdAt']?.toDate()
-        } as Goal);
-      });
-      this.goalsSubject.next(goals);
+  onSnapshot(goalsQuery, (snapshot) => {
+    const goals: Goal[] = [];
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      goals.push({
+        id: docSnap.id,
+        ...data,
+        deadline: data['deadline']?.toDate?.(),
+        createdAt: data['createdAt']?.toDate?.()
+      } as Goal);
     });
+    this.goalsSubject.next(goals);
+  });
 
-    // Budgets listener
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
+  // 🔹 Budgets (already nested, leave as is)
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  const budgetsRef = collection(userDocRef, 'budgets');
+  const budgetsQuery = query(
+    budgetsRef,
+    where('month', '==', currentMonth),
+    where('year', '==', currentYear)
+  );
 
-    const userDocRef = doc(this.firestore, 'users', currentUser.uid);
-    const budgetsRef = collection(userDocRef, 'budgets');
-    const budgetsQuery = query(
-      budgetsRef,
-      where('month', '==', currentMonth),
-      where('year', '==', currentYear)
-    );
-
-    onSnapshot(budgetsQuery, (snapshot) => {
-      const budgets: Budget[] = [];
-      snapshot.forEach((doc) => {
-        budgets.push({
-          id: doc.id,
-          ...doc.data()
-        } as Budget);
-      });
-      this.budgetsSubject.next(budgets);
+  onSnapshot(budgetsQuery, (snapshot) => {
+    const budgets: Budget[] = [];
+    snapshot.forEach((docSnap) => {
+      budgets.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      } as Budget);
     });
-  }
+    this.budgetsSubject.next(budgets);
+  });
+}
 
-  // Transaction methods
+
   async addTransaction(transaction: Omit<Transaction, 'id' | 'userId' | 'createdAt'>): Promise<string> {
     const currentUser = this.authService.currentUser;
     if (!currentUser) throw new Error('User not authenticated');
 
     const transactionData = {
-      ...transaction,
-      userId: currentUser.uid,
-      createdAt: Timestamp.now(),
-      date: Timestamp.fromDate(transaction.date)
-    };
+        ...transaction,
+        userId: currentUser.uid,
+        createdAt: Timestamp.now(),
+        date: Timestamp.fromDate(new Date(transaction.date)) 
+        };
 
     const docRef = await addDoc(collection(this.firestore, 'transactions'), transactionData);
 
@@ -148,7 +146,7 @@ export class FinancialDataService {
     await deleteDoc(transactionRef);
   }
 
-  // Goal methods
+
   async addGoal(goal: Omit<Goal, 'id' | 'userId' | 'createdAt' | 'isCompleted'>): Promise<string> {
     const currentUser = this.authService.currentUser;
     if (!currentUser) throw new Error('User not authenticated');
@@ -179,7 +177,7 @@ export class FinancialDataService {
     await updateDoc(goalRef, { current: amount });
   }
 
-  // Budget methods
+
   async createMonthlyBudgets(budgets: Array<{category: string, monthlyLimit: number, color: string}>, userId: string): Promise<void> {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
@@ -225,7 +223,7 @@ export class FinancialDataService {
     }
   }
 
-  // Analytics methods
+ 
   getMonthlyIncome(): Observable<number> {
     return this.transactions$.pipe(
       map(transactions => {
