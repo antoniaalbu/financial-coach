@@ -19,6 +19,11 @@
   z-index: 1;
 }
 
+.budgets-main {
+  padding: 2rem;
+  padding-bottom: 4rem;
+}
+
 .budgets-header {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(20px);
@@ -131,9 +136,6 @@
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
 }
-
-
-
 
 .glass-card {
   background: rgba(255, 255, 255, 0.08);

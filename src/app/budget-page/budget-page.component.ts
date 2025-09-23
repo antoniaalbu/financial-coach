@@ -1,4 +1,4 @@
-// components/budget/budget.component.ts
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -29,7 +29,6 @@ export class BudgetComponent implements OnInit, OnDestroy {
   budgets: BudgetItem[] = [];
   isLoading = true;
 
-  // 🔹 Modal state
   isModalOpen = false;
   editingBudget: BudgetItem | null = null;
 
@@ -60,7 +59,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
     this.budgetForm = this.fb.group({
     category: ['', Validators.required],
     monthlyLimit: ['', [Validators.required, Validators.min(1)]],
-    spent: [0, [Validators.min(0)]], // <-- new field
+    spent: [0, [Validators.min(0)]], 
     color: ['#4F46E5', Validators.required],
     alertThreshold: [80, [Validators.required, Validators.min(1), Validators.max(100)]]
 });
@@ -99,7 +98,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔹 Modal Controls
+
   openAddModal(): void {
     this.editingBudget = null;
     this.isModalOpen = true;
@@ -117,7 +116,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
   this.budgetForm.patchValue({
     category: budget.category,
     monthlyLimit: budget.monthlyLimit,
-    spent: budget.spent, // <-- prefill spent
+    spent: budget.spent, 
     color: budget.color,
     alertThreshold: budget.alertThreshold
   });
@@ -147,7 +146,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
       await updateDoc(budgetDocRef, {
         category: formValue.category,
         monthlyLimit: parseFloat(formValue.monthlyLimit),
-        spent: parseFloat(formValue.spent), // <-- update spent
+        spent: parseFloat(formValue.spent), 
         color: formValue.color,
         alertThreshold: formValue.alertThreshold
       });
@@ -155,7 +154,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
       const budgetData = {
         category: formValue.category,
         monthlyLimit: parseFloat(formValue.monthlyLimit),
-        spent: 0, // <-- always 0 on create
+        spent: 0, 
         month: currentMonth,
         year: currentYear,
         color: formValue.color,
@@ -204,7 +203,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ---- Helpers ----
+  
   getAvailableCategories(): typeof this.availableCategories {
     const usedCategories = this.budgets.map(b => b.category);
     return this.availableCategories.filter(cat => !usedCategories.includes(cat.name));
