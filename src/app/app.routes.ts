@@ -8,12 +8,13 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from '@angular/fire/auth-guard';
 
 
+
 export const routes: Routes = [
   { path: '', component: LandingComponent },   
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'features', component: FeaturesComponent },
   { path: 'about', component: AboutComponent },
-   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }  
 ];

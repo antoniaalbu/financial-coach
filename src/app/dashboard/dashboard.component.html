@@ -4,18 +4,24 @@
     <div class="header-content">
       <div class="header-left">
         <h1 class="dashboard-title">
-          Welcome back, <span class="gradient-text">{{ userName.split(' ')[0] }}</span>
+          Welcome back, <span class="gradient-text">{{ getDisplayName().split(' ')[0] }}</span>
         </h1>
         <p class="dashboard-subtitle">Here's what's happening with your finances today</p>
       </div>
       
       <div class="header-right">
         <div class="header-actions">
-          <button class="action-btn" (click)="addTransaction()">
+          <button class="action-btn" (click)="quickAddExpense()">
+            <svg width="20" height="20" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+            Add Expense
+          </button>
+          <button class="action-btn" (click)="quickAddIncome()">
             <svg width="20" height="20" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
-            Add Transaction
+            Add Income
           </button>
           <button class="action-btn secondary" (click)="navigateToSettings()">
             <svg width="25" height="25" fill="none" stroke="currentColor">
@@ -24,15 +30,22 @@
             </svg>
           </button>
           <div class="user-profile" (click)="navigateToSettings()">
-            <img [src]="userAvatar" [alt]="userName" class="user-avatar">
+            <img [src]="userAvatar" [alt]="getDisplayName()" class="user-avatar">
           </div>
         </div>
       </div>
     </div>
   </header>
 
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your financial data...</p>
+    </div>
+  </div>
 
-  <main class="dashboard-main">
+  <main class="dashboard-main" *ngIf="!isLoading">
     <div class="container">
       
       <section class="overview-section">
@@ -48,12 +61,13 @@
               <h3>Total Balance</h3>
             </div>
             <div class="card-content">
-              <div class="balance-amount">{{ formatCurrency(totalBalance) }}</div>
-              <div class="balance-change positive">
+              <div class="balance-amount">{{ formatCurrency(dashboardData.totalBalance) }}</div>
+              <div class="balance-change" [class]="dashboardData.monthlyChange >= 0 ? 'positive' : 'negative'">
                 <svg width="16" height="16" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        [attr.d]="dashboardData.monthlyChange >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6'"/>
                 </svg>
-                +{{ monthlyChange }}% this month
+                {{ dashboardData.monthlyChange >= 0 ? '+' : '' }}{{ dashboardData.monthlyChange.toFixed(1) }}% this month
               </div>
             </div>
           </div>
@@ -68,8 +82,8 @@
               <h3>Monthly Income</h3>
             </div>
             <div class="card-content">
-              <div class="amount">{{ formatCurrency(monthlyIncome) }}</div>
-              <div class="amount-label">September 2024</div>
+              <div class="amount">{{ formatCurrency(dashboardData.monthlyIncome) }}</div>
+              <div class="amount-label">{{ getCurrentMonthLabel() }}</div>
             </div>
           </div>
 
@@ -83,8 +97,8 @@
               <h3>Monthly Expenses</h3>
             </div>
             <div class="card-content">
-              <div class="amount">{{ formatCurrency(monthlyExpenses) }}</div>
-              <div class="amount-label">September 2024</div>
+              <div class="amount">{{ formatCurrency(dashboardData.monthlyExpenses) }}</div>
+              <div class="amount-label">{{ getCurrentMonthLabel() }}</div>
             </div>
           </div>
 
@@ -98,13 +112,62 @@
               <h3>Savings Rate</h3>
             </div>
             <div class="card-content">
-              <div class="amount">{{ ((monthlyIncome - monthlyExpenses) / monthlyIncome * 100).toFixed(1) }}%</div>
-              <div class="amount-label">{{ formatCurrency(monthlyIncome - monthlyExpenses) }} saved</div>
+              <div class="amount">{{ getSavingsRate() }}%</div>
+              <div class="amount-label">{{ formatCurrency(dashboardData.monthlyIncome - dashboardData.monthlyExpenses) }} saved</div>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- Charts Section -->
+      <section class="charts-section">
+        <div class="charts-grid">
+          
+          <!-- Expenses by Category Chart -->
+          <div class="chart-card glass-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Expenses by Category</h3>
+              <button class="chart-action-btn" (click)="navigateToBudget()">View Details</button>
+            </div>
+            <div class="chart-container">
+              <div *ngIf="(dashboardData.expensesByCategory | keyvalue).length > 0" class="chart-wrapper">
+                <canvas id="expensesPieChart"></canvas>
+              </div>
+              <div *ngIf="(dashboardData.expensesByCategory | keyvalue).length === 0" class="empty-chart">
+                <div class="empty-chart-icon">
+                  <svg width="48" height="48" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                </div>
+                <p class="empty-chart-title">No expense data</p>
+                <p class="empty-chart-subtitle">Add some expenses to see the breakdown</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly Trends Chart -->
+          <div class="chart-card glass-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Income vs Expenses Trend</h3>
+              <button class="chart-action-btn" (click)="navigateToTransactions()">View All</button>
+            </div>
+            <div class="chart-container">
+              <div *ngIf="dashboardData.monthlyTrends.length > 0" class="chart-wrapper">
+                <canvas id="trendsLineChart"></canvas>
+              </div>
+              <div *ngIf="dashboardData.monthlyTrends.length === 0" class="empty-chart">
+                <div class="empty-chart-icon">
+                  <svg width="48" height="48" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                </div>
+                <p class="empty-chart-title">No trend data</p>
+                <p class="empty-chart-subtitle">Add transactions to see trends</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section class="dashboard-content">
         <div class="content-grid">
@@ -123,7 +186,22 @@
               </div>
               
               <div class="transactions-list glass-card">
-                <div class="transaction-item" *ngFor="let transaction of recentTransactions">
+                <!-- No transactions message -->
+                <div *ngIf="dashboardData.transactions.length === 0" class="empty-state">
+                  <div class="empty-state-icon">
+                    <svg width="48" height="48" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                  </div>
+                  <h3 class="empty-state-title">No transactions yet</h3>
+                  <p class="empty-state-subtitle">Start tracking your finances by adding your first transaction</p>
+                  <button class="empty-state-btn" (click)="addTransaction()">
+                    Add Transaction
+                  </button>
+                </div>
+
+                <!-- Transaction items -->
+                <div class="transaction-item" *ngFor="let transaction of dashboardData.transactions">
                   <div class="transaction-icon" [class]="transaction.type + '-icon'">
                     <svg width="20" height="20" fill="none" stroke="currentColor" [innerHTML]="transaction.icon"></svg>
                   </div>
@@ -154,15 +232,30 @@
               </div>
               
               <div class="budget-list glass-card">
-                <div class="budget-item" *ngFor="let category of budgetCategories">
+                <!-- No budgets message -->
+                <div *ngIf="dashboardData.budgets.length === 0" class="empty-state">
+                  <div class="empty-state-icon">
+                    <svg width="48" height="48" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                  </div>
+                  <h3 class="empty-state-title">No budget set</h3>
+                  <p class="empty-state-subtitle">Create monthly budgets to track your spending</p>
+                  <button class="empty-state-btn" (click)="navigateToBudget()">
+                    Create Budget
+                  </button>
+                </div>
+
+                <!-- Budget items -->
+                <div class="budget-item" *ngFor="let budget of dashboardData.budgets">
                   <div class="budget-info">
-                    <div class="budget-icon" [style.background-color]="category.color">
-                      <svg width="20" height="20" fill="none" stroke="white" [innerHTML]="category.icon"></svg>
+                    <div class="budget-icon" [style.background-color]="budget.color">
+                      <svg width="20" height="20" fill="none" stroke="white" [innerHTML]="getBudgetIcon(budget.category)"></svg>
                     </div>
                     <div class="budget-details">
-                      <div class="budget-name">{{ category.name }}</div>
+                      <div class="budget-name">{{ budget.category }}</div>
                       <div class="budget-amounts">
-                        {{ formatCurrency(category.spent) }} of {{ formatCurrency(category.budget) }}
+                        {{ formatCurrency(budget.spent) }} of {{ formatCurrency(budget.monthlyLimit) }}
                       </div>
                     </div>
                   </div>
@@ -170,10 +263,10 @@
                   <div class="budget-progress">
                     <div class="progress-bar">
                       <div class="progress-fill" 
-                           [style.width.%]="getBudgetPercentage(category.spent, category.budget)"
-                           [style.background-color]="category.color"></div>
+                           [style.width.%]="getBudgetPercentage(budget.spent, budget.monthlyLimit)"
+                           [style.background-color]="getBudgetPercentage(budget.spent, budget.monthlyLimit) > 80 ? '#EF4444' : budget.color"></div>
                     </div>
-                    <div class="budget-percentage">{{ getBudgetPercentage(category.spent, category.budget).toFixed(0) }}%</div>
+                    <div class="budget-percentage">{{ getBudgetPercentage(budget.spent, budget.monthlyLimit).toFixed(0) }}%</div>
                   </div>
                 </div>
               </div>
@@ -194,10 +287,25 @@
               </div>
               
               <div class="goals-list">
-                <div class="goal-card glass-card" *ngFor="let goal of goals">
+                <!-- No goals message -->
+                <div *ngIf="dashboardData.goals.length === 0" class="empty-state goal-empty">
+                  <div class="empty-state-icon">
+                    <svg width="48" height="48" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <h3 class="empty-state-title">No goals set</h3>
+                  <p class="empty-state-subtitle">Create your first financial goal to start tracking progress</p>
+                  <button class="empty-state-btn" (click)="addGoal()">
+                    Create Goal
+                  </button>
+                </div>
+
+                <!-- Goal cards -->
+                <div class="goal-card glass-card" *ngFor="let goal of dashboardData.goals">
                   <div class="goal-header">
                     <div class="goal-icon" [style.background-color]="goal.color">
-                      <svg width="20" height="20" fill="none" stroke="white" [innerHTML]="goal.icon"></svg>
+                      <svg width="20" height="20" fill="none" stroke="white" [innerHTML]="getGoalIcon(goal.category)"></svg>
                     </div>
                     <div class="goal-info">
                       <h3 class="goal-title">{{ goal.title }}</h3>
@@ -224,37 +332,53 @@
               </div>
             </div>
 
-            <div class="dashboard-section">
-              <div class="section-header">
-                <h2 class="section-title">Investment Portfolio</h2>
-                <button class="view-all-btn" (click)="navigateToInvestments()">
-                  View All
-                  <svg width="25" height="25" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </button>
-              </div>
+            
               
-              <div class="investments-list glass-card">
-                <div class="investment-item" *ngFor="let investment of investments">
-                  <div class="investment-info">
-                    <div class="investment-name">{{ investment.name }}</div>
-                    <div class="investment-symbol">{{ investment.symbol }}</div>
-                  </div>
-                  
-                  <div class="investment-values">
-                    <div class="investment-value">{{ formatCurrency(investment.currentValue) }}</div>
-                    <div class="investment-change" [class]="investment.change >= 0 ? 'positive' : 'negative'">
-                      <svg width="14" height="14" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              [attr.d]="investment.change >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6'"/>
-                      </svg>
-                      {{ investment.changePercent >= 0 ? '+' : '' }}{{ investment.changePercent }}%
-                    </div>
-                  </div>
-                </div>
+             
               </div>
             </div>
+         
+        
+      </section>
+
+      <!-- Quick Actions Section -->
+      <section class="quick-actions-section">
+        <div class="quick-actions-card glass-card">
+          <h3 class="quick-actions-title">Quick Actions</h3>
+          <div class="quick-actions-grid">
+            <button class="quick-action-btn" (click)="addTransaction()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </div>
+              <span>Add Transaction</span>
+            </button>
+            <button class="quick-action-btn" (click)="addGoal()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <span>Create Goal</span>
+            </button>
+            <button class="quick-action-btn" (click)="navigateToBudget()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+              </div>
+              <span>View Budget</span>
+            </button>
+            <button class="quick-action-btn" (click)="navigateToSettings()">
+              <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <span>Settings</span>
+            </button>
           </div>
         </div>
       </section>
