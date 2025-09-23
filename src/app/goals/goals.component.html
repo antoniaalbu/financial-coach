@@ -1,0 +1,69 @@
+<div class="goal-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Your Goals</h1>
+      <p class="page-subtitle">Track your financial goals and progress</p>
+    </div>
+  </header>
+
+  <section class="goal-form-section">
+    <form [formGroup]="addGoalForm" (ngSubmit)="submitGoal()" class="goal-form-card">
+      <h3>{{ editingGoal ? 'Edit Goal' : 'Add New Goal' }}</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Title</label>
+          <input formControlName="title" type="text" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input formControlName="description" type="text" />
+        </div>
+        <div class="form-group">
+          <label>Target Amount</label>
+          <input formControlName="target" type="number" />
+        </div>
+        <div class="form-group">
+          <label>Deadline</label>
+          <input formControlName="deadline" type="date" />
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <input formControlName="color" type="color" />
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select formControlName="category">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select formControlName="priority">
+            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn primary" type="submit">{{ editingGoal ? 'Update Goal' : 'Add Goal' }}</button>
+    </form>
+  </section>
+
+  <section class="goal-list-section">
+    <div class="goal-grid">
+      <div class="goal-card" *ngFor="let goal of goals$ | async" [style.borderColor]="goal.color">
+        <h4>{{ goal.title }}</h4>
+        <p>{{ goal.description }}</p>
+        <p>Category: {{ goal.category | titlecase }} | Priority: {{ goal.priority | titlecase }}</p>
+        <p>Target: {{ goal.target | currency }}</p>
+        <p>Current: {{ goal.current | currency }}</p>
+        <p>Deadline: {{ goal.deadline | date:'mediumDate' }}</p>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPercentage(goal)" [style.background]="goal.color"></div>
+        </div>
+        <div class="goal-actions">
+          <button class="action-btn-small" (click)="editGoal(goal)">Edit</button>
+          <button class="action-btn-small danger" (click)="completeGoal(goal)">Complete</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

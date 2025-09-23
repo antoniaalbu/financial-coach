@@ -506,7 +506,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
  
   addTransaction(): void {
-    this.router.navigate(['/transactions/add']);
+    this.router.navigate(['/transactions']);
   }
 
   addGoal(): void {

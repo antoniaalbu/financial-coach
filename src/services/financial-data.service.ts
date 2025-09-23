@@ -20,8 +20,6 @@ import { map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { Transaction, Goal, Budget, Investment } from '../models/financial.model';  
 
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -43,88 +41,81 @@ export class FinancialDataService {
     this.initializeRealtimeListeners();
   }
 
- private initializeRealtimeListeners() {
-  const currentUser = this.authService.currentUser;
-  if (!currentUser) return;
+  private initializeRealtimeListeners() {
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) return;
 
-  // 🔹 Transactions (nested under user)
-  const userDocRef = doc(this.firestore, 'users', currentUser.uid);
-  const transactionsRef = collection(userDocRef, 'transactions');
-  const transactionsQuery = query(
-    transactionsRef,
-    orderBy('date', 'desc'),
-    limit(100)
-  );
+    const userDocRef = doc(this.firestore, 'users', currentUser.uid);
 
-  onSnapshot(transactionsQuery, (snapshot) => {
-    const transactions: Transaction[] = [];
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      transactions.push({
-        id: docSnap.id,
-        ...data,
-        date: data['date']?.toDate?.() || null,
-        createdAt: data['createdAt']?.toDate?.() || null
-      } as Transaction);
+    const transactionsRef = collection(userDocRef, 'transactions');
+    const transactionsQuery = query(
+      transactionsRef,
+      orderBy('date', 'desc'),
+      limit(100)
+    );
+    onSnapshot(transactionsQuery, (snapshot) => {
+      const transactions: Transaction[] = [];
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        transactions.push({
+          id: docSnap.id,
+          ...data,
+          date: data['date']?.toDate?.() || null,
+          createdAt: data['createdAt']?.toDate?.() || null
+        } as Transaction);
+      });
+      this.transactionsSubject.next(transactions);
     });
-    this.transactionsSubject.next(transactions);
-  });
 
-  // 🔹 Goals (still top-level in your code — do you also want them under users/{uid}?)
-  const goalsRef = collection(this.firestore, 'goals');
-  const goalsQuery = query(
-    goalsRef,
-    where('userId', '==', currentUser.uid),
-    orderBy('createdAt', 'desc')
-  );
-
-  onSnapshot(goalsQuery, (snapshot) => {
-    const goals: Goal[] = [];
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      goals.push({
-        id: docSnap.id,
-        ...data,
-        deadline: data['deadline']?.toDate?.(),
-        createdAt: data['createdAt']?.toDate?.()
-      } as Goal);
+    const goalsRef = collection(userDocRef, 'goals');
+    const goalsQuery = query(
+      goalsRef,
+      orderBy('createdAt', 'desc')
+    );
+    onSnapshot(goalsQuery, (snapshot) => {
+      const goals: Goal[] = [];
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        goals.push({
+          id: docSnap.id,
+          ...data,
+          deadline: data['deadline']?.toDate?.(),
+          createdAt: data['createdAt']?.toDate?.()
+        } as Goal);
+      });
+      this.goalsSubject.next(goals);
     });
-    this.goalsSubject.next(goals);
-  });
 
-  // 🔹 Budgets (already nested, leave as is)
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const budgetsRef = collection(userDocRef, 'budgets');
-  const budgetsQuery = query(
-    budgetsRef,
-    where('month', '==', currentMonth),
-    where('year', '==', currentYear)
-  );
-
-  onSnapshot(budgetsQuery, (snapshot) => {
-    const budgets: Budget[] = [];
-    snapshot.forEach((docSnap) => {
-      budgets.push({
-        id: docSnap.id,
-        ...docSnap.data()
-      } as Budget);
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const budgetsRef = collection(userDocRef, 'budgets');
+    const budgetsQuery = query(
+      budgetsRef,
+      where('month', '==', currentMonth),
+      where('year', '==', currentYear)
+    );
+    onSnapshot(budgetsQuery, (snapshot) => {
+      const budgets: Budget[] = [];
+      snapshot.forEach(docSnap => {
+        budgets.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        } as Budget);
+      });
+      this.budgetsSubject.next(budgets);
     });
-    this.budgetsSubject.next(budgets);
-  });
-}
-
+  }
 
   async addTransaction(transaction: Omit<Transaction, 'id' | 'userId' | 'createdAt'>): Promise<string> {
     const currentUser = this.authService.currentUser;
     if (!currentUser) throw new Error('User not authenticated');
 
     const transactionData = {
-        ...transaction,
-        userId: currentUser.uid,
-        createdAt: Timestamp.now(),
-        date: Timestamp.fromDate(new Date(transaction.date)) 
-        };
+      ...transaction,
+      userId: currentUser.uid,
+      createdAt: Timestamp.now(),
+      date: Timestamp.fromDate(new Date(transaction.date)) 
+    };
 
     const docRef = await addDoc(collection(this.firestore, 'transactions'), transactionData);
 
@@ -149,7 +140,6 @@ export class FinancialDataService {
     await deleteDoc(transactionRef);
   }
 
-
   async addGoal(goal: Omit<Goal, 'id' | 'userId' | 'createdAt' | 'isCompleted'>): Promise<string> {
     const currentUser = this.authService.currentUser;
     if (!currentUser) throw new Error('User not authenticated');
@@ -162,12 +152,18 @@ export class FinancialDataService {
       isCompleted: false
     };
 
-    const docRef = await addDoc(collection(this.firestore, 'goals'), goalData);
+    const userDocRef = doc(this.firestore, 'users', currentUser.uid);
+    const goalsRef = collection(userDocRef, 'goals'); 
+    const docRef = await addDoc(goalsRef, goalData);
+
     return docRef.id;
   }
 
   async updateGoal(id: string, updates: Partial<Goal>): Promise<void> {
-    const goalRef = doc(this.firestore, 'goals', id);
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) throw new Error('User not authenticated');
+
+    const goalRef = doc(this.firestore, 'users', currentUser.uid, 'goals', id);
     const updateData = {
       ...updates,
       ...(updates.deadline && { deadline: Timestamp.fromDate(updates.deadline) })
@@ -176,10 +172,12 @@ export class FinancialDataService {
   }
 
   async updateGoalProgress(id: string, amount: number): Promise<void> {
-    const goalRef = doc(this.firestore, 'goals', id);
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) throw new Error('User not authenticated');
+
+    const goalRef = doc(this.firestore, 'users', currentUser.uid, 'goals', id);
     await updateDoc(goalRef, { current: amount });
   }
-
 
   async createMonthlyBudgets(budgets: Array<{category: string, monthlyLimit: number, color: string}>, userId: string): Promise<void> {
     const currentMonth = new Date().getMonth() + 1;
@@ -202,27 +200,17 @@ export class FinancialDataService {
     await Promise.all(promises);
   }
 
-async updateBudgetSpending(category: string, amount: number): Promise<void> {
-  console.log('--- updateBudgetSpending called ---');
-  console.log('Category:', category, 'Amount:', amount);
+  async updateBudgetSpending(category: string, amount: number): Promise<void> {
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) return;
 
-  const currentUser = this.authService.currentUser;
-  if (!currentUser) {
-    console.warn('No current user, exiting updateBudgetSpending');
-    return;
-  }
-  console.log('Current user ID:', currentUser.uid);
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
 
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-  console.log('Current month/year:', currentMonth, currentYear);
-
-  try {
     const userDocRef = doc(this.firestore, 'users', currentUser.uid);
     const budgetsRef = collection(userDocRef, 'budgets');
 
-    console.log('Querying budgets for category:', category);
     const budgetQuery = query(
       budgetsRef,
       where('category', '==', category),
@@ -231,25 +219,13 @@ async updateBudgetSpending(category: string, amount: number): Promise<void> {
     );
 
     const querySnapshot = await getDocs(budgetQuery);
-    console.log('Number of budgets found:', querySnapshot.size);
 
     if (!querySnapshot.empty) {
       const budgetDoc = querySnapshot.docs[0];
-      const budgetData = budgetDoc.data();
-      console.log('Current budget data:', budgetData);
-
-
       await updateDoc(budgetDoc.ref, { spent: increment(amount) });
-      console.log(`Updated budget '${category}' spent by ${amount}`);
-    } else {
-      console.warn(`No budget found for ${category} in ${currentMonth}/${currentYear}`);
     }
-  } catch (error) {
-    console.error('Error updating budget spending:', error);
   }
-}
 
- 
   getMonthlyIncome(): Observable<number> {
     return this.transactions$.pipe(
       map(transactions => {
