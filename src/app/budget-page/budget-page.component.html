@@ -1,32 +1,32 @@
 
 <div class="budget-page">
 
-  <header class="page-header">
-    <div class="header-content">
-      <div class="header-left">
-        <button class="back-btn" (click)="navigateToDashboard()">
-          <svg width="20" height="20" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-          Back to Dashboard
-        </button>
-        <div class="header-titles">
-          <h1 class="page-title">Budget Management</h1>
-          <p class="page-subtitle">
-            Manage your monthly spending limits for {{ getCurrentMonthYear() }}
-          </p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button class="action-btn primary" (click)="openAddModal()">
-          <svg width="20" height="20" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-          </svg>
-          Add Budget Category
-        </button>
+ 
+  <div class="header-content">
+    <!-- Left section: Back button + titles -->
+    <div class="header-left">
+      <div class="header-titles">
+        <h1 class="page-title">
+          <span class="gradient-text">Budget Management</span>
+        </h1>
+        <p class="page-subtitle">
+          Manage your monthly spending limits for {{ getCurrentMonthYear() }}
+        </p>
       </div>
     </div>
-  </header>
+
+    <!-- Right section: Add Budget button -->
+    <div class="header-actions">
+      <button class="action-btn primary" (click)="openAddModal()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Add Budget Category
+      </button>
+    </div>
+  </div>
+
+
 
   <div *ngIf="isLoading" class="loading-container">
     <div class="loading-spinner">
