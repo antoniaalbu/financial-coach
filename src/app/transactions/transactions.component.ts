@@ -218,6 +218,13 @@ async saveTransaction(): Promise<void> {
           formValue.amount
         );
       }
+
+      if (formValue.type === 'income') {
+        await this.financialDataService.updateGoalProgressForIncome(
+          formValue.category,
+          formValue.amount
+        );
+      }
     }
 
     this.closeModal();

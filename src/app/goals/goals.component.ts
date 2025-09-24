@@ -17,8 +17,12 @@ export class GoalPageComponent implements OnInit {
   addGoalForm: FormGroup;
   editingGoal: Goal | null = null;
 
-  categories = ['emergency', 'vacation', 'house', 'car', 'investment', 'other'];
+  categories = ['Food & Dining', 'Transportation', 'Entertainment', 'Shopping',
+    'Bills & Utilities', 'Healthcare', 'Education', 'Travel',
+    'Housing', 'Insurance', 'Other'];
   priorities = ['low', 'medium', 'high'];
+  showGoalModal = false;
+  
 
   constructor(
     private financialService: FinancialDataService,
@@ -44,16 +48,16 @@ export class GoalPageComponent implements OnInit {
     if (this.addGoalForm.invalid) return;
 
     const goalData = this.addGoalForm.value;
-    console.log('Submitting goal:', goalData); // 🔹 log form data
+    console.log('Submitting goal:', goalData); 
 
     try {
       if (this.editingGoal) {
-        console.log('Updating existing goal:', this.editingGoal.id); // 🔹 log editing goal ID
+        console.log('Updating existing goal:', this.editingGoal.id); 
         await this.financialService.updateGoal(this.editingGoal.id!, {
           ...goalData,
           deadline: new Date(goalData.deadline)
         });
-        console.log('Goal updated successfully'); // 🔹 log success
+        console.log('Goal updated successfully'); 
         this.editingGoal = null;
       } else {
         console.log('Adding new goal for user...');
@@ -62,7 +66,7 @@ export class GoalPageComponent implements OnInit {
           current: 0,
           deadline: new Date(goalData.deadline)
         });
-        console.log('Goal added successfully with ID:', newGoalId); // 🔹 log new goal ID
+        console.log('Goal added successfully with ID:', newGoalId); 
       }
       this.addGoalForm.reset({ current: 0, color: '#4F46E5', category: 'other', priority: 'medium' });
     } catch (error) {
@@ -70,14 +74,29 @@ export class GoalPageComponent implements OnInit {
     }
   }
 
-  editGoal(goal: Goal) {
+ 
+
+  openGoalModal(): void {
+    this.showGoalModal = true;
+    this.editingGoal = null; 
+    this.addGoalForm.reset(); 
+  }
+  
+  closeGoalModal(): void {
+    this.showGoalModal = false;
+    this.editingGoal = null;
+    this.addGoalForm.reset();
+  }
+  
+  editGoal(goal: any): void {
     this.editingGoal = goal;
-    this.addGoalForm.setValue({
+    this.showGoalModal = true;
+   
+    this.addGoalForm.patchValue({
       title: goal.title,
-      description: goal.description || '',
+      description: goal.description,
       target: goal.target,
-      current: goal.current,
-      deadline: goal.deadline.toISOString().substring(0, 10),
+      deadline: goal.deadline,
       color: goal.color,
       category: goal.category,
       priority: goal.priority
@@ -96,4 +115,30 @@ export class GoalPageComponent implements OnInit {
   progressPercentage(goal: Goal): number {
     return Math.min(100, (goal.current / goal.target) * 100);
   }
+
+ 
+isDeadlineUrgent(deadline: Date): boolean {
+  const days = this.getDaysUntilDeadline(deadline);
+  return days <= 7;
+}
+
+isDeadlineSoon(deadline: Date): boolean {
+  const days = this.getDaysUntilDeadline(deadline);
+  return days > 7 && days <= 30;
+}
+
+getDaysUntilDeadline(deadline: Date): number {
+  const today = new Date();
+  const deadlineDate = new Date(deadline);
+  const diffTime = deadlineDate.getTime() - today.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+addFundsToGoal(goal: any): void {
+ 
+}
+
+scrollToForm(): void {
+
+}
 }

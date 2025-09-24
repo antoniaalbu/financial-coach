@@ -1,69 +1,161 @@
 <div class="goal-page">
-  <header class="page-header">
+  <header class="goals-header">
     <div class="header-content">
-      <h1 class="page-title">Your Goals</h1>
-      <p class="page-subtitle">Track your financial goals and progress</p>
+      <div class="header-left">
+        <div class="header-titles">
+          <h1 class="goals-title">
+            <span class="gradient-text">Your Goals</span>
+          </h1>
+          <p class="goals-subtitle">Track your financial goals and progress</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn primary" (click)="openGoalModal()">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+          </svg>
+          Add Goal
+        </button>
+      </div>
     </div>
   </header>
 
-  <section class="goal-form-section">
-    <form [formGroup]="addGoalForm" (ngSubmit)="submitGoal()" class="goal-form-card">
-      <h3>{{ editingGoal ? 'Edit Goal' : 'Add New Goal' }}</h3>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Title</label>
-          <input formControlName="title" type="text" />
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <input formControlName="description" type="text" />
-        </div>
-        <div class="form-group">
-          <label>Target Amount</label>
-          <input formControlName="target" type="number" />
-        </div>
-        <div class="form-group">
-          <label>Deadline</label>
-          <input formControlName="deadline" type="date" />
-        </div>
-        <div class="form-group">
-          <label>Color</label>
-          <input formControlName="color" type="color" />
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select formControlName="category">
-            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Priority</label>
-          <select formControlName="priority">
-            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
-          </select>
+  <main class="goals-main">
+    <section class="goal-list-section">
+      <div class="section-header">
+        <h2>Your Goals</h2>
+      </div>
+      
+      <div class="goal-grid">
+        <div class="glass-card goal-card" *ngFor="let goal of goals$ | async" [style.border-left-color]="goal.color">
+          <div class="goal-header">
+            <div class="goal-info">
+              <h4>{{ goal.title }}</h4>
+              <p class="goal-description">{{ goal.description }}</p>
+            </div>
+            <div class="goal-actions">
+              <button class="action-btn-small" (click)="editGoal(goal)">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L10.5 8.5 14 12l-4 4-3.5-3.5L2.146 8.146a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0L8 6.293l4.146-4.147z"/>
+                </svg>
+              </button>
+              <div class="action-dropdown">
+                <button class="dropdown-toggle action-btn-small">
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                  </svg>
+                </button>
+                
+              </div>
+            </div>
+          </div>
+          
+          <div class="goal-meta">
+            <span class="category-badge">{{ goal.category | titlecase }}</span>
+            <span class="priority-badge" [ngClass]="'priority-' + goal.priority.toLowerCase()">{{ goal.priority | titlecase }}</span>
+          </div>
+
+          <div class="goal-amounts">
+            <div class="amount-item">
+              <span class="amount-label">Target</span>
+              <span class="amount-value">{{ goal.target | currency }}</span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">Current</span>
+              <span class="amount-value">{{ goal.current | currency }}</span>
+            </div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="progressPercentage(goal)" 
+                   [style.background]="goal.color">
+              </div>
+            </div>
+            <div class="progress-labels">
+              <span>{{ progressPercentage(goal) }}% Complete</span>
+              <span>{{ goal.target - goal.current | currency }} remaining</span>
+            </div>
+          </div>
+
+          <div class="deadline-info" 
+               [ngClass]="{
+                 'deadline-urgent': isDeadlineUrgent(goal.deadline),
+                 'deadline-soon': isDeadlineSoon(goal.deadline),
+                 'deadline-normal': !isDeadlineUrgent(goal.deadline) && !isDeadlineSoon(goal.deadline)
+               }">
+            📅 Deadline: {{ goal.deadline | date:'mediumDate' }}
+          </div>
         </div>
       </div>
-      <button class="btn primary" type="submit">{{ editingGoal ? 'Update Goal' : 'Add Goal' }}</button>
-    </form>
-  </section>
 
-  <section class="goal-list-section">
-    <div class="goal-grid">
-      <div class="goal-card" *ngFor="let goal of goals$ | async" [style.borderColor]="goal.color">
-        <h4>{{ goal.title }}</h4>
-        <p>{{ goal.description }}</p>
-        <p>Category: {{ goal.category | titlecase }} | Priority: {{ goal.priority | titlecase }}</p>
-        <p>Target: {{ goal.target | currency }}</p>
-        <p>Current: {{ goal.current | currency }}</p>
-        <p>Deadline: {{ goal.deadline | date:'mediumDate' }}</p>
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="progressPercentage(goal)" [style.background]="goal.color"></div>
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="(goals$ | async)?.length === 0">
+        <div class="empty-state-icon">🎯</div>
+        <h3 class="empty-state-title">No Goals Yet</h3>
+        <p class="empty-state-description">
+          Start by creating your first financial goal. Set targets, track progress, and achieve your dreams!
+        </p>
+        <button class="btn primary large" (click)="openGoalModal()">Create Your First Goal</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Goal Modal -->
+  <div class="modal-backdrop" *ngIf="showGoalModal" (click)="closeGoalModal()"></div>
+  <div class="modal" *ngIf="showGoalModal">
+    <div class="modal-content">
+      <div class="glass-card">
+        <div class="form-header">
+          <h3>{{ editingGoal ? 'Edit Goal' : 'Add New Goal' }}</h3>
+          <button class="close-btn" (click)="closeGoalModal()">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+          </button>
         </div>
-        <div class="goal-actions">
-          <button class="action-btn-small" (click)="editGoal(goal)">Edit</button>
-          <button class="action-btn-small danger" (click)="completeGoal(goal)">Complete</button>
-        </div>
+        <form [formGroup]="addGoalForm" (ngSubmit)="submitGoal()">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Title</label>
+              <input formControlName="title" type="text" />
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input formControlName="description" type="text" />
+            </div>
+            <div class="form-group">
+              <label>Target Amount</label>
+              <input formControlName="target" type="number" />
+            </div>
+            <div class="form-group">
+              <label>Deadline</label>
+              <input formControlName="deadline" type="date" />
+            </div>
+            <div class="form-group">
+              <label>Color</label>
+              <input formControlName="color" type="color" />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select formControlName="category">
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Priority</label>
+              <select formControlName="priority">
+                <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn secondary" type="button" (click)="closeGoalModal()">Cancel</button>
+            <button class="btn primary" type="submit">{{ editingGoal ? 'Update Goal' : 'Add Goal' }}</button>
+          </div>
+        </form>
       </div>
     </div>
-  </section>
+  </div>
 </div>

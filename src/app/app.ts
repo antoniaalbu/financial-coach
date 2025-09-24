@@ -68,12 +68,13 @@ export class AppComponent {
            !url.includes('/signup') &&
            !url.includes('/dashboard') &&
            !url.includes('/budgets') &&
-           !url.includes('/transactions');
+           !url.includes('/transactions') &&
+           !url.includes('/goals');
   }
 
   showSidebar(): boolean {
     return this.router.url.includes('/dashboard') || this.router.url.includes('/budgets') ||
-           this.router.url.includes('/transactions');
+           this.router.url.includes('/transactions') || this.router.url.includes('/goals');
   }
 
   onSidebarStateChange(state: {isCollapsed: boolean, isMobile: boolean}) {

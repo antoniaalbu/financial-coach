@@ -226,6 +226,25 @@ export class FinancialDataService {
     }
   }
 
+  async updateGoalProgressForIncome(category: string, amount: number): Promise<void> {
+  const currentUser = this.authService.currentUser;
+  if (!currentUser) return;
+
+  const userDocRef = doc(this.firestore, 'users', currentUser.uid);
+  const goalsRef = collection(userDocRef, 'goals');
+
+  const goalQuery = query(goalsRef, where('category', '==', category));
+  const querySnapshot = await getDocs(goalQuery);
+
+  if (!querySnapshot.empty) {
+    querySnapshot.forEach(async (goalDoc) => {
+      const goalRef = goalDoc.ref;
+      await updateDoc(goalRef, { current: increment(amount) });
+    });
+  }
+}
+
+
   getMonthlyIncome(): Observable<number> {
     return this.transactions$.pipe(
       map(transactions => {
