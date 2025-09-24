@@ -16,6 +16,8 @@ export class GoalPageComponent implements OnInit {
   goals$: Observable<Goal[]>;
   addGoalForm: FormGroup;
   editingGoal: Goal | null = null;
+  isLoading = false;
+  goalSaved = false;
 
   categories = ['Food & Dining', 'Transportation', 'Entertainment', 'Shopping',
     'Bills & Utilities', 'Healthcare', 'Education', 'Travel',
@@ -44,35 +46,62 @@ export class GoalPageComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  async submitGoal() {
-    if (this.addGoalForm.invalid) return;
-
-    const goalData = this.addGoalForm.value;
-    console.log('Submitting goal:', goalData); 
-
-    try {
-      if (this.editingGoal) {
-        console.log('Updating existing goal:', this.editingGoal.id); 
-        await this.financialService.updateGoal(this.editingGoal.id!, {
-          ...goalData,
-          deadline: new Date(goalData.deadline)
-        });
-        console.log('Goal updated successfully'); 
-        this.editingGoal = null;
-      } else {
-        console.log('Adding new goal for user...');
-        const newGoalId = await this.financialService.addGoal({
-          ...goalData,
-          current: 0,
-          deadline: new Date(goalData.deadline)
-        });
-        console.log('Goal added successfully with ID:', newGoalId); 
-      }
-      this.addGoalForm.reset({ current: 0, color: '#4F46E5', category: 'other', priority: 'medium' });
-    } catch (error) {
-      console.error('Error saving goal:', error);
-    }
+ async submitGoal() {
+  if (this.addGoalForm.invalid) {
+    this.addGoalForm.markAllAsTouched();
+    return;
   }
+
+  this.isLoading = true;
+  this.goalSaved = false;
+
+  const goalData = this.addGoalForm.value;
+  console.log('Submitting goal:', goalData); 
+
+  try {
+    if (this.editingGoal) {
+      console.log('Updating existing goal:', this.editingGoal.id); 
+      await this.financialService.updateGoal(this.editingGoal.id!, {
+        ...goalData,
+        deadline: new Date(goalData.deadline)
+      });
+      console.log('Goal updated successfully'); 
+      this.editingGoal = null;
+    } else {
+      console.log('Adding new goal for user...');
+      const newGoalId = await this.financialService.addGoal({
+        ...goalData,
+        current: 0,
+        deadline: new Date(goalData.deadline)
+      });
+      console.log('Goal added successfully with ID:', newGoalId); 
+    }
+    
+    // Show success feedback
+    this.goalSaved = true;
+    
+    // Reset form with default values
+    this.addGoalForm.reset({ 
+      current: 0, 
+      color: '#4F46E5', 
+      category: 'other', 
+      priority: 'medium' 
+    });
+    
+    // Hide success message and close modal after 2 seconds
+    setTimeout(() => {
+      this.goalSaved = false;
+      this.closeGoalModal();
+    }, 2000);
+
+  } catch (error) {
+    console.error('Error saving goal:', error);
+    // You might want to show an error message to the user here
+    // this.showErrorMessage('Failed to save goal. Please try again.');
+  } finally {
+    this.isLoading = false;
+  }
+}
 
  
 

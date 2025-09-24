@@ -140,58 +140,63 @@
     </div>
   </main>
 
-  <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+  <!-- Modal -->
+<div *ngIf="isModalOpen" class="modal-backdrop" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      
+      <!-- Header -->
       <div class="modal-header">
         <h2 class="modal-title">{{ editingTransaction ? 'Edit' : 'Add' }} Transaction</h2>
-        <button class="modal-close" (click)="closeModal()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
       </div>
 
-      <form class="modal-form" [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
-        <div class="form-group">
-          <label class="form-label">Transaction Type</label>
-          <select class="form-select" formControlName="type">
-            <option value="">Select type</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-        </div>
+      <!-- Body -->
+      <div class="modal-body">
+        <form class="modal-form" [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
+          <div class="form-group">
+            <label>Transaction Type</label>
+            <select formControlName="type">
+              <option value="">Select type</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <select class="form-select" formControlName="category">
-            <option value="">Select category</option>
-            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select formControlName="category">
+              <option value="">Select category</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <input class="form-input" formControlName="description" type="text" placeholder="Enter description">
-        </div>
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" formControlName="description" placeholder="Enter description">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Amount</label>
-          <input class="form-input" formControlName="amount" type="number" step="0.01" placeholder="0.00">
-        </div>
+          <div class="form-group">
+            <label>Amount</label>
+            <input type="number" formControlName="amount" step="0.01" placeholder="0.00">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input class="form-input" formControlName="date" type="date">
-        </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" formControlName="date">
+          </div>
+        </form>
+      </div>
 
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
-          <button type="submit" class="btn-primary" [disabled]="!transactionForm.valid">
-            {{ editingTransaction ? 'Save Changes' : 'Add Transaction' }}
-          </button>
-        </div>
-      </form>
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="!transactionForm.valid" (click)="saveTransaction()">
+          {{ editingTransaction ? 'Save Changes' : 'Add Transaction' }}
+        </button>
+      </div>
     </div>
   </div>
+</div>
+
 </div>
