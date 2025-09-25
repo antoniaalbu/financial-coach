@@ -32,6 +32,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   transactionForm: FormGroup;
   private subscription: Subscription | null = null;
   filterForm: FormGroup;
+  showSuccessMessage: boolean = false;
+  isSubmitting: boolean = false
 
 
   readonly categories = [
@@ -214,6 +216,13 @@ async saveTransaction(): Promise<void> {
       
       if (formValue.type === 'expense') {
         await this.financialDataService.updateBudgetSpending(
+          formValue.category,
+          formValue.amount
+        );
+      }
+
+      if (formValue.type === 'income') {
+        await this.financialDataService.updateGoalProgressForIncome(
           formValue.category,
           formValue.amount
         );

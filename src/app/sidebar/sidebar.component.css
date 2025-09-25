@@ -4,7 +4,7 @@
   left: 0;
   bottom: 0;
   width: 250px;
-  background-color: rgba(0, 0, 0, 0);
+  background: rgba(0, 0, 0, 1)
   backdrop-filter: blur(20px);
   color: white;
   display: flex;

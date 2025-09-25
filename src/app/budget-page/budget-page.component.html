@@ -102,7 +102,7 @@
             <div class="budget-progress-section">
               <div class="spending-amounts">
                 <div class="spent-amount">
-                  <span class="amount-label">Spent</span>
+                  <span class="amount-label">Spent </span>
                   <span class="amount-value">{{ formatCurrency(budget.spent) }}</span>
                 </div>
                 <div class="remaining-amount">
@@ -236,7 +236,8 @@
       <button class="close-btn" (click)="closeModal()">✕</button>
     </div>
     <form [formGroup]="budgetForm" (ngSubmit)="saveBudget()">
-      <div class="form-grid">
+      <!-- Change from form-grid to form-column -->
+      <div class="form-column">
         <div class="form-group">
           <label for="category">Category *</label>
           <input formControlName="category" id="category" type="text"
@@ -260,12 +261,12 @@
                 <input type="number" step="0.01" formControlName="spent" id="spent"/>
             </div>
         </div>
-
         <div class="form-group">
           <label for="color">Color Theme</label>
           <input type="color" formControlName="color" id="color"/>
         </div>
       </div>
+
       <div class="form-actions">
         <button type="button" class="btn secondary" (click)="closeModal()">Cancel</button>
         <button type="submit" class="btn primary">
@@ -274,4 +275,6 @@
       </div>
     </form>
   </div>
+
+
 </div>

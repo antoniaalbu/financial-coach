@@ -29,16 +29,16 @@ export class SignupComponent implements OnInit {
     private financialDataService: FinancialDataService
   ) {
     this.signupForm = this.fb.group({
-      // Step 1: Basic Info
+    
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       
-      // Step 2: Security
+      
       password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
       confirmPassword: ['', [Validators.required]],
       
-      // Step 3: Preferences
+      
       monthlyIncome: ['', [Validators.required, Validators.min(0)]],
       financialGoals: [[], [Validators.required]],
       termsAccepted: [false, [Validators.requiredTrue]]
@@ -164,7 +164,7 @@ async onSubmit(): Promise<void> {
   const formData = this.signupForm.value;
 
   try {
-    // 1. Signup with Auth
+  
     const userCredential = await this.authService.signup(
       formData.email,
       formData.password,
@@ -180,7 +180,7 @@ async onSubmit(): Promise<void> {
     const user = userCredential.user;
     if (!user) throw new Error('User signup failed');
 
-    // 2. Create Firestore user document
+   
     const userDocRef = doc(this.firestore, `users/${user.uid}`);
     await setDoc(userDocRef, {
       firstName: formData.firstName,
@@ -192,7 +192,7 @@ async onSubmit(): Promise<void> {
       createdAt: new Date()
     });
 
-    // 3. Setup initial default budgets
+    
   const defaultBudgets = [
   { category: 'Food & Dining', monthlyLimit: 800, color: '#4F46E5' },
   { category: 'Transportation', monthlyLimit: 400, color: '#06B6D4' },
@@ -204,9 +204,9 @@ try {
   await this.financialDataService.createMonthlyBudgets(defaultBudgets, userCredential.user.uid);
 } catch (error) {
   console.error('Budget creation error:', error);
-  // optionally show a non-blocking warning
+  
 }
-// 4. Navigate to dashboard
+
 this.router.navigate(['/dashboard']);
 console.log('Signup successful:', userCredential.user);
 

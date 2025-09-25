@@ -1,0 +1,234 @@
+<div class="goal-page">
+  <header class="goals-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-titles">
+          <h1 class="goals-title">
+            <span class="gradient-text">Your Goals</span>
+          </h1>
+          <p class="goals-subtitle">Track your financial goals and progress</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn primary" (click)="openGoalModal()">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+          </svg>
+          Add Goal
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="goals-main">
+    <section class="goal-list-section">
+      <div class="section-header">
+        <h2>Your Goals</h2>
+      </div>
+      
+      <div class="goal-grid">
+        <div class="glass-card goal-card" *ngFor="let goal of goals$ | async" [style.border-left-color]="goal.color">
+          <div class="goal-header">
+            <div class="goal-info">
+              <h4>{{ goal.title }}</h4>
+              <p class="goal-description">{{ goal.description }}</p>
+            </div>
+            <div class="goal-actions">
+              <button class="action-btn-small" (click)="editGoal(goal)">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L10.5 8.5 14 12l-4 4-3.5-3.5L2.146 8.146a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0L8 6.293l4.146-4.147z"/>
+                </svg>
+              </button>
+              <div class="action-dropdown">
+                <button class="dropdown-toggle action-btn-small">
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="goal-meta">
+            <span class="category-badge">{{ goal.category | titlecase }}</span>
+            <span class="priority-badge" [ngClass]="'priority-' + goal.priority.toLowerCase()">{{ goal.priority | titlecase }}</span>
+          </div>
+
+          <div class="goal-amounts">
+            <div class="amount-item">
+              <span class="amount-label">Target</span>
+              <span class="amount-value">{{ goal.target | currency }}</span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">Current</span>
+              <span class="amount-value">{{ goal.current | currency }}</span>
+            </div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="progressPercentage(goal)" 
+                   [style.background]="goal.color">
+              </div>
+            </div>
+            <div class="progress-labels">
+              <span>{{ progressPercentage(goal) }}% Complete</span>
+              <span>{{ goal.target - goal.current | currency }} remaining</span>
+            </div>
+          </div>
+
+          <div class="deadline-info" 
+               [ngClass]="{
+                 'deadline-urgent': isDeadlineUrgent(goal.deadline),
+                 'deadline-soon': isDeadlineSoon(goal.deadline),
+                 'deadline-normal': !isDeadlineUrgent(goal.deadline) && !isDeadlineSoon(goal.deadline)
+               }">
+            📅 Deadline: {{ goal.deadline | date:'mediumDate' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="(goals$ | async)?.length === 0">
+        <div class="empty-state-icon">🎯</div>
+        <h3 class="empty-state-title">No Goals Yet</h3>
+        <p class="empty-state-description">
+          Start by creating your first financial goal. Set targets, track progress, and achieve your dreams!
+        </p>
+        <button class="btn primary large" (click)="openGoalModal()">Create Your First Goal</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Enhanced Goal Modal with Login Form Styling -->
+  <div class="modal-backdrop" *ngIf="showGoalModal" (click)="closeGoalModal()"></div>
+  <div class="modal" *ngIf="showGoalModal">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">{{ editingGoal ? 'Edit Goal' : 'Add New Goal' }}</h3>
+        <button class="close-btn" (click)="closeGoalModal()">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form [formGroup]="addGoalForm" (ngSubmit)="submitGoal()">
+          <!-- Two Column Layout -->
+          <div class="form-columns">
+            <!-- Left Column -->
+            <div class="form-column">
+              <!-- Title Field with Icon -->
+              <div class="form-group">
+                <label>Goal Title</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                  </svg>
+                  <input formControlName="title" type="text" placeholder="Enter your goal title" />
+                </div>
+              </div>
+
+              <!-- Target Amount Field with Icon -->
+              <div class="form-group">
+                <label>Target Amount</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"/>
+                  </svg>
+                  <input formControlName="target" type="number" placeholder="0.00" />
+                </div>
+              </div>
+
+              <!-- Deadline Field with Icon -->
+              <div class="form-group">
+                <label>Target Deadline</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                  </svg>
+                  <input formControlName="deadline" type="date" />
+                </div>
+              </div>
+
+              <!-- Color Field -->
+              <div class="form-group">
+                <label>Theme Color</label>
+                <input formControlName="color" type="color" />
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="form-column">
+              <!-- Description Field -->
+              <div class="form-group full-height">
+                <label>Description</label>
+                <textarea formControlName="description" placeholder="Describe your goal in detail..." rows="4"></textarea>
+              </div>
+
+              <!-- Category and Priority Row -->
+              <div class="form-row">
+                <!-- Category Field with Icon -->
+                <div class="form-group">
+                  <label>Category</label>
+                  <div class="input-wrapper">
+                    <svg class="input-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                    </svg>
+                    <select formControlName="category">
+                      <option value="" disabled>Select category</option>
+                      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Priority Field with Icon -->
+                <div class="form-group">
+                  <label>Priority Level</label>
+                  <div class="input-wrapper">
+                    <svg class="input-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M7.001 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                    </svg>
+                    <select formControlName="priority">
+                      <option value="" disabled>Select priority</option>
+                      <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Show form validation errors if any -->
+          <div class="error-message" *ngIf="addGoalForm.invalid && addGoalForm.touched">
+            Please fill in all required fields correctly.
+          </div>
+
+          <!-- Success message if needed -->
+          <div class="success-message" *ngIf="goalSaved">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 0.5rem;">
+              <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
+            Goal saved successfully!
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn secondary" type="button" (click)="closeGoalModal()">
+          Cancel
+        </button>
+        <button class="btn primary" type="submit" form="goalForm" [disabled]="addGoalForm.invalid">
+          <span *ngIf="isLoading" class="loading-spinner"></span>
+          {{ editingGoal ? 'Update Goal' : 'Create Goal' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
