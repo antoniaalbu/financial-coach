@@ -61,7 +61,6 @@
           </div>
         </div>
 
-
         <div *ngIf="!isLoading && transactions.length === 0" class="empty-state glass-card">
           <div class="empty-state-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -140,63 +139,149 @@
     </div>
   </main>
 
-  <!-- Modal -->
-<div *ngIf="isModalOpen" class="modal-backdrop" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-content">
-      
-      <!-- Header -->
-      <div class="modal-header">
-        <h2 class="modal-title">{{ editingTransaction ? 'Edit' : 'Add' }} Transaction</h2>
-        <button class="close-btn" (click)="closeModal()">&times;</button>
-      </div>
+  <!-- Enhanced Modal -->
+  <div *ngIf="isModalOpen" class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        
+        <!-- Enhanced Header -->
+        <div class="modal-header">
+          <h2 class="modal-title">{{ editingTransaction ? 'Edit' : 'Add' }} Transaction</h2>
+          <button class="close-btn" (click)="closeModal()" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
 
-      <!-- Body -->
-      <div class="modal-body">
-        <form class="modal-form" [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
-          <div class="form-group">
-            <label>Transaction Type</label>
-            <select formControlName="type">
-              <option value="">Select type</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
-          </div>
+        <!-- Enhanced Body -->
+        <div class="modal-body">
+          <form class="modal-form" [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
+            
+            <div class="form-group">
+              <label>Transaction Type</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="m12 1 2 2-2 2-2-2 2-2z"></path>
+                  <path d="m12 21 2 2-2 2-2-2 2-2z"></path>
+                  <path d="m1 12 2-2 2 2-2 2-2-2z"></path>
+                  <path d="m21 12 2-2 2 2-2 2-2-2z"></path>
+                </svg>
+                <select formControlName="type">
+                  <option value="">Select transaction type</option>
+                  <option value="income">💰 Income</option>
+                  <option value="expense">💸 Expense</option>
+                </select>
+              </div>
+              <div *ngIf="transactionForm.get('type')?.invalid && transactionForm.get('type')?.touched" 
+                   class="error-message">
+                Transaction type is required
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label>Category</label>
-            <select formControlName="category">
-              <option value="">Select category</option>
-              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-            </select>
-          </div>
+            <div class="form-group">
+              <label>Category</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m7 11 2-2-2-2"></path>
+                  <path d="M11 13h4"></path>
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                </svg>
+                <select formControlName="category">
+                  <option value="">Select category</option>
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div *ngIf="transactionForm.get('category')?.invalid && transactionForm.get('category')?.touched" 
+                   class="error-message">
+                Category is required
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label>Description</label>
-            <input type="text" formControlName="description" placeholder="Enter description">
-          </div>
+            <div class="form-group">
+              <label>Description</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14,2 14,8 20,8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10,9 9,9 8,9"></polyline>
+                </svg>
+                <input type="text" 
+                       formControlName="description" 
+                       placeholder="Enter transaction description">
+              </div>
+              <div *ngIf="transactionForm.get('description')?.invalid && transactionForm.get('description')?.touched" 
+                   class="error-message">
+                Description is required
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label>Amount</label>
-            <input type="number" formControlName="amount" step="0.01" placeholder="0.00">
-          </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <input type="number" 
+                       formControlName="amount" 
+                       step="0.01" 
+                       min="0.01"
+                       placeholder="0.00">
+              </div>
+              <div *ngIf="transactionForm.get('amount')?.invalid && transactionForm.get('amount')?.touched" 
+                   class="error-message">
+                <span *ngIf="transactionForm.get('amount')?.errors?.['required']">Amount is required</span>
+                <span *ngIf="transactionForm.get('amount')?.errors?.['min']">Amount must be greater than 0</span>
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" formControlName="date">
-          </div>
-        </form>
-      </div>
+            <div class="form-group">
+              <label>Date</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <input type="date" 
+                       formControlName="date">
+              </div>
+              <div *ngIf="transactionForm.get('date')?.invalid && transactionForm.get('date')?.touched" 
+                   class="error-message">
+                Date is required
+              </div>
+            </div>
 
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn secondary" (click)="closeModal()">Cancel</button>
-        <button type="submit" class="btn primary" [disabled]="!transactionForm.valid" (click)="saveTransaction()">
-          {{ editingTransaction ? 'Save Changes' : 'Add Transaction' }}
-        </button>
+            <!-- Success Message -->
+            <div *ngIf="showSuccessMessage" class="success-message">
+              Transaction {{ editingTransaction ? 'updated' : 'added' }} successfully!
+            </div>
+          </form>
+        </div>
+
+        <!-- Enhanced Footer -->
+        <div class="modal-footer">
+          <button type="button" 
+                  class="btn secondary" 
+                  (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="button" 
+                  class="btn primary" 
+                  [disabled]="!transactionForm.valid || isSubmitting" 
+                  (click)="saveTransaction()">
+            <span *ngIf="isSubmitting" class="loading-spinner"></span>
+            {{ editingTransaction ? 'Save Changes' : 'Add Transaction' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 </div>

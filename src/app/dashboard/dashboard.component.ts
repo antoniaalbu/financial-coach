@@ -510,16 +510,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   addGoal(): void {
-    this.router.navigate(['/goals/create']);
+    this.router.navigate(['/goals']);
   }
 
-  async quickAddIncome(): Promise<void> {
-    this.router.navigate(['/transactions/add'], { queryParams: { type: 'income' } });
-  }
-
-  async quickAddExpense(): Promise<void> {
-    this.router.navigate(['/transactions/add'], { queryParams: { type: 'expense' } });
-  }
+  
 
   logout(): void {
     this.authService.logout();

@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule]
 })
 export class SidebarComponent implements OnInit {
-  isCollapsed = false;
+  isCollapsed = true;
   isMobileOpen = false;
   isMobile = false;
 

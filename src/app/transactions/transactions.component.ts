@@ -32,6 +32,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   transactionForm: FormGroup;
   private subscription: Subscription | null = null;
   filterForm: FormGroup;
+  showSuccessMessage: boolean = false;
+  isSubmitting: boolean = false
 
 
   readonly categories = [

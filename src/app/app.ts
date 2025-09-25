@@ -33,18 +33,22 @@ import { CommonModule } from '@angular/common';
       display: flex;
     }
 
-    .content {
+  .content {
       flex: 1;
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-left: 0; 
     }
 
-    .content.with-sidebar {
-      margin-left: 250px; 
+
+    .content.with-sidebar:not(.sidebar-collapsed) {
+      margin-left: 250px;
     }
 
+ 
     .content.with-sidebar.sidebar-collapsed {
-      margin-left: 80px; 
+      margin-left: 80px;
     }
+
 
     @media (max-width: 768px) {
       .content.with-sidebar {
