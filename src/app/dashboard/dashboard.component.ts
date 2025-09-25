@@ -6,11 +6,9 @@ import { FinancialDataService } from '../../services/financial-data.service';
 import { Firestore, collection, query, where, getDocs, doc, getDoc } from '@angular/fire/firestore';
 import { Observable, combineLatest, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-// Import Chart.js
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 
-// Register Chart.js components
+
 Chart.register(...registerables);
 
 interface DashboardData {
@@ -35,8 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   userName = '';
   userAvatar = 'https://media.licdn.com/dms/image/v2/D4E03AQH1fDAyoxvo0g/profile-displayphoto-shrink_800_800/B4EZTDgIK5GwAc-/0/1738446767854?e=1761177600&v=beta&t=ZKKwpuhrmNf-kMI8toLIdJm6EgLG6f2kNqphEe2n-xk';
   isLoading = true;
-  
-  // Dashboard data
+
   dashboardData: DashboardData = {
     totalBalance: 0,
     monthlyIncome: 0,
@@ -49,11 +46,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     monthlyTrends: []
   };
 
-  // Chart references
+
   private pieChart: Chart | null = null;
   private lineChart: Chart | null = null;
   
-  // Subscriptions
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -71,7 +68,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
-      this.fetchBudgets();
     this.destroyCharts();
   }
 
@@ -411,7 +407,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Utility methods
+
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

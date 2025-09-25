@@ -1,0 +1,197 @@
+<div class="transactions-page">
+  
+  <header class="transactions-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="transactions-title">
+          <span class="gradient-text">Transactions</span>
+        </h1>
+        <p class="transactions-subtitle">Manage your financial activities</p>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn" (click)="openAddModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Transaction
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="transactions-main">
+    <div class="container">
+
+      <div class="filters-section glass-card">
+        <div class="filters-header">
+          <h3 class="filters-title">Filter Transactions</h3>
+        </div>
+        <div class="filters-content">
+          <div class="filter-group">
+            <label class="filter-label">Type:</label>
+            <select class="filter-select">
+              <option value="">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Category:</label>
+            <select class="filter-select">
+              <option value="">All Categories</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Date Range:</label>
+            <input type="date" class="filter-input">
+            <span class="filter-separator">to</span>
+            <input type="date" class="filter-input">
+          </div>
+        </div>
+      </div>
+
+      <div class="transactions-section">
+ 
+        <div *ngIf="isLoading" class="loading-container">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading transactions...</p>
+          </div>
+        </div>
+
+
+        <div *ngIf="!isLoading && transactions.length === 0" class="empty-state glass-card">
+          <div class="empty-state-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <path d="m16 8 2-2 2 2"></path>
+              <path d="M11 6h5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5z"></path>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">No transactions yet</h3>
+          <p class="empty-state-subtitle">Start tracking your finances by adding your first transaction</p>
+          <button class="empty-state-btn" (click)="openAddModal()">Add Transaction</button>
+        </div>
+
+        <div *ngIf="!isLoading && transactions.length > 0" class="transactions-list glass-card">
+          <div class="transactions-header-row">
+            <div class="table-header">
+              <div class="header-cell">Type</div>
+              <div class="header-cell">Description</div>
+              <div class="header-cell">Category</div>
+              <div class="header-cell">Amount</div>
+              <div class="header-cell">Date</div>
+              <div class="header-cell">Actions</div>
+            </div>
+          </div>
+          
+          <div class="transactions-body">
+            <div class="transaction-row" *ngFor="let tx of transactions; trackBy: trackByTransaction">
+              <div class="transaction-type">
+                <div class="type-icon" [class.income-icon]="tx.type === 'income'" [class.expense-icon]="tx.type === 'expense'">
+                  <svg *ngIf="tx.type === 'income'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                    <polyline points="5,12 12,5 19,12"></polyline>
+                  </svg>
+                  <svg *ngIf="tx.type === 'expense'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19,12 12,19 5,12"></polyline>
+                  </svg>
+                </div>
+                <span class="type-text">{{ tx.type | titlecase }}</span>
+              </div>
+
+              <div class="transaction-description">
+                <div class="description-text">{{ tx.description }}</div>
+              </div>
+
+              <div class="transaction-category">
+                <span class="category-badge">{{ tx.category }}</span>
+              </div>
+
+              <div class="transaction-amount" [class.income]="tx.type === 'income'" [class.expense]="tx.type === 'expense'">
+                <span class="amount-text">{{ formatCurrency(tx.amount) }}</span>
+              </div>
+
+              <div class="transaction-date">
+                <span class="date-text">{{ formatDate(tx.date) }}</span>
+              </div>
+
+              <div class="transaction-actions">
+                <button class="action-btn-small" (click)="openEditModal(tx)" title="Edit transaction">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="action-btn-small delete" (click)="deleteTransaction(tx)" title="Delete transaction">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ editingTransaction ? 'Edit' : 'Add' }} Transaction</h2>
+        <button class="modal-close" (click)="closeModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form class="modal-form" [formGroup]="transactionForm" (ngSubmit)="saveTransaction()">
+        <div class="form-group">
+          <label class="form-label">Transaction Type</label>
+          <select class="form-select" formControlName="type">
+            <option value="">Select type</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" formControlName="category">
+            <option value="">Select category</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input class="form-input" formControlName="description" type="text" placeholder="Enter description">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <input class="form-input" formControlName="amount" type="number" step="0.01" placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" formControlName="date" type="date">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="!transactionForm.valid">
+            {{ editingTransaction ? 'Save Changes' : 'Add Transaction' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

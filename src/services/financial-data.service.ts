@@ -12,12 +12,15 @@ import {
   updateDoc, 
   deleteDoc,
   onSnapshot,
-  Timestamp
+  Timestamp,
+  increment
 } from '@angular/fire/firestore';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Transaction, Goal, Budget, Investment } from '../models/financial.model';    
+import { Transaction, Goal, Budget, Investment } from '../models/financial.model';  
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -199,15 +202,27 @@ export class FinancialDataService {
     await Promise.all(promises);
   }
 
-  private async updateBudgetSpending(category: string, amount: number): Promise<void> {
-    const currentUser = this.authService.currentUser;
-    if (!currentUser) return;
+async updateBudgetSpending(category: string, amount: number): Promise<void> {
+  console.log('--- updateBudgetSpending called ---');
+  console.log('Category:', category, 'Amount:', amount);
 
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
+  const currentUser = this.authService.currentUser;
+  if (!currentUser) {
+    console.warn('No current user, exiting updateBudgetSpending');
+    return;
+  }
+  console.log('Current user ID:', currentUser.uid);
 
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  console.log('Current month/year:', currentMonth, currentYear);
+
+  try {
     const userDocRef = doc(this.firestore, 'users', currentUser.uid);
     const budgetsRef = collection(userDocRef, 'budgets');
+
+    console.log('Querying budgets for category:', category);
     const budgetQuery = query(
       budgetsRef,
       where('category', '==', category),
@@ -216,12 +231,23 @@ export class FinancialDataService {
     );
 
     const querySnapshot = await getDocs(budgetQuery);
+    console.log('Number of budgets found:', querySnapshot.size);
+
     if (!querySnapshot.empty) {
       const budgetDoc = querySnapshot.docs[0];
-      const currentSpent = budgetDoc.data()['spent'] || 0;
-      await updateDoc(budgetDoc.ref, { spent: currentSpent + amount });
+      const budgetData = budgetDoc.data();
+      console.log('Current budget data:', budgetData);
+
+
+      await updateDoc(budgetDoc.ref, { spent: increment(amount) });
+      console.log(`Updated budget '${category}' spent by ${amount}`);
+    } else {
+      console.warn(`No budget found for ${category} in ${currentMonth}/${currentYear}`);
     }
+  } catch (error) {
+    console.error('Error updating budget spending:', error);
   }
+}
 
  
   getMonthlyIncome(): Observable<number> {
